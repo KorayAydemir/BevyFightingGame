@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.13.1", features = ["dynamic_linking"] }
-bevy_hanabi = { version = "0.11", default-features = false, features = [ "2d" ] }
+bevy_hanabi = { version = "0.11", default-features = true }
 bevy_math = "0.13.2"
 
 [profile.dev]

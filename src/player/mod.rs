@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use self::state::PlayerState;
+
 mod input;
 mod movement;
 mod spawn;
@@ -23,4 +25,14 @@ impl Plugin for PlayerPlugin {
 
 
 #[derive(Component, Debug)]
-pub struct Player;
+pub struct Player {
+    state: PlayerState
+}
+
+impl Player {
+    fn new() -> Player {
+        Player {
+            state: PlayerState::default()
+        }
+    }
+}

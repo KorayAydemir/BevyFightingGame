@@ -1,14 +1,6 @@
-#![allow(clippy::too_many_arguments, clippy::type_complexity)]
+#![warn(clippy::pedantic)]
+#![allow(clippy::too_many_arguments, clippy::type_complexity, clippy::module_name_repetitions, clippy::needless_pass_by_value)]
 
-mod systems {
-    pub mod bloom;
-    pub mod draw_cursor;
-    pub mod pixel_grid_snap;
-    pub mod shapes;
-    pub mod sprite_animation;
-    pub mod sprite_movement;
-    pub mod volume_intersections_2d;
-}
 mod player;
 
 use std::env;

@@ -44,7 +44,7 @@ fn spawn_player(
             },
             ..default()
         },
-        Player,
+        Player::new(),
         Velocity { x: 0., y: 0. },
         animation_indices,
         AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
@@ -59,7 +59,7 @@ fn animate_sprite(
         &mut TextureAtlas,
     )>,
 ) {
-    for (mut indices, mut timer, mut atlas) in query.iter_mut() {
+    for (mut indices, mut timer, mut atlas) in &mut query {
         timer.tick(time.delta());
 
         if timer.just_finished() {
@@ -70,7 +70,7 @@ fn animate_sprite(
             }
 
             if indices.go_rev > 0 {
-                atlas.index -= 1
+                atlas.index -= 1;
             } else {
                 atlas.index += 1;
             }
