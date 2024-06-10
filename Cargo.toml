@@ -9,6 +9,7 @@ edition = "2021"
 bevy = { version = "0.13.1", features = ["dynamic_linking"] }
 bevy_hanabi = { version = "0.11", default-features = true }
 bevy_math = "0.13.2"
+iyes_perf_ui = "0.2.3"
 
 [profile.dev]
 opt-level = 1

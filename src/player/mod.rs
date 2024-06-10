@@ -1,10 +1,14 @@
 use bevy::prelude::*;
 
-use self::state::PlayerState;
+use self::{
+    spells::{CooldownTimers, Spell},
+    state::PlayerState,
+};
 
 mod input;
 mod movement;
 mod spawn;
+pub mod spells;
 mod sprite;
 mod state;
 
@@ -19,20 +23,20 @@ impl Plugin for PlayerPlugin {
             .add_plugins(movement::PlayerMovementPlugin)
             .add_plugins(input::PlayerInputPlugin)
             .add_plugins(sprite::PlayerSpritePlugin)
-            .add_plugins(state::PlayerStatePlugin);
+            .add_plugins(state::PlayerStatePlugin)
+            .add_plugins(spells::PlayerSpellsPlugin);
     }
 }
 
-
 #[derive(Component, Debug)]
 pub struct Player {
-    state: PlayerState
+    state: PlayerState,
 }
 
 impl Player {
     fn new() -> Player {
         Player {
-            state: PlayerState::default()
+            state: PlayerState::default(),
         }
     }
 }

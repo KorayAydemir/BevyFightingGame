@@ -6,7 +6,7 @@ fn player_sprite_indices(state: &PlayerState) {
     match state {
         PlayerState::Idling => (0, 3),
         PlayerState::Moving => (4, 12),
-        PlayerState::CastingSpell => (0,0)
+        PlayerState::CastingSpell(_) => (0,0)
     };
 }
 
