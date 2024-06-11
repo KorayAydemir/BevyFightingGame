@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-
 mod spells;
 
 pub struct UiPlugin;
@@ -8,8 +7,3 @@ impl Plugin for UiPlugin {
         app.add_plugins(spells::SpellsUiPlugin);
     }
 }
-
-
-
-
-

@@ -8,6 +8,7 @@
 
 mod player;
 mod ui;
+mod world;
 
 use std::env;
 
@@ -47,22 +48,22 @@ fn main() {
                     synchronous_pipeline_compilation: false,
                 }),
         )
-        .add_plugins(HanabiPlugin)
-        .add_plugins(PerfUiPlugin)
-        .add_plugins(FrameTimeDiagnosticsPlugin)
         .insert_resource(Msaa::Off)
-        .add_systems(Startup, spawn_camera)
+
+        .add_plugins(PerfUiPlugin)
+        .add_plugins(HanabiPlugin)
+        .add_plugins(FrameTimeDiagnosticsPlugin)
+
+
+
+        .add_plugins(world::WorldPlugin)
         .add_plugins(player::PlayerPlugin)
         .add_plugins(ui::UiPlugin)
+
+        .add_systems(Startup, spawn_perfui)
         .run();
 }
 
-
-fn spawn_camera(mut commands: Commands) {
-    let mut camera = Camera2dBundle::default();
+fn spawn_perfui(mut commands: Commands) {
     commands.spawn(PerfUiCompleteBundle::default());
-
-    camera.projection.scaling_mode = ScalingMode::FixedVertical(400.0);
-
-    commands.spawn(camera);
 }
