@@ -46,7 +46,7 @@ impl Spell {
 pub struct CooldownTimers(pub HashMap<Spell, Timer>);
 
 fn update_cooldown_timers(time: Res<Time>, mut timers: ResMut<CooldownTimers>) {
-    for (spell, timer) in &mut timers.0 {
+    for (_spell, timer) in &mut timers.0 {
         timer.tick(time.delta());
     }
 }

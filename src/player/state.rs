@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 
-use super::{input::PlayerInput, spells::Spell, Player};
+use super::{input::{PlayerInput, Direction}, spells::Spell, Player};
+
 
 #[derive(States, Hash, Eq, PartialEq, Debug, Default, Clone)]
 pub enum PlayerState {
     #[default]
     Idling,
-    Moving,
+    Moving(Direction),
     CastingSpell(Spell),
 }
 
@@ -15,32 +16,39 @@ fn switch_player_state(mut q_player: Query<&mut Player>, player_input: Res<Playe
 
     match player.state {
         PlayerState::Idling => {
-            if player_input.move_direction != Vec2::ZERO {
-                player.state = PlayerState::Moving;
+            if let Some(direction) = player_input.move_direction { 
+                player.state = PlayerState::Moving(direction);
             };
 
             if let Some(spell) = player_input.use_spell {
                 player.state = PlayerState::CastingSpell(spell);
             };
         }
-        PlayerState::Moving => {
+
+        PlayerState::Moving(_) => {
+            if let Some(direction) = player_input.move_direction { 
+                player.state = PlayerState::Moving(direction);
+            };
+
             if let Some(spell) = player_input.use_spell {
                 player.state = PlayerState::CastingSpell(spell);
             };
 
-            if player_input.move_direction == Vec2::ZERO {
+            if player_input.move_direction.is_none() {
                 player.state = PlayerState::Idling;
-            };
+            }
         }
+
         PlayerState::CastingSpell(spell) => {
             match spell {
                 Spell::SprayFire => { }
                 Spell::BlastWave => todo!(),
             }
-            if player_input.move_direction == Vec2::ZERO {
-                player.state = PlayerState::Idling;
+
+            if let Some(direction) = player_input.move_direction {
+                player.state = PlayerState::Moving(direction);
             } else {
-                player.state = PlayerState::Moving;
+                player.state = PlayerState::Idling;
             }
         }
     }

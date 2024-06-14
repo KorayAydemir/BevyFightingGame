@@ -1,11 +1,10 @@
 use bevy::prelude::*;
 
-use super::input::PlayerInput;
+use super::input::{Horizontal, Vertical};
 use super::state::PlayerState;
 use super::Player;
 
 const TIME_STEP: f32 = 1. / 60.;
-// 16ms
 const BASE_SPEED: f32 = 65.;
 
 pub struct PlayerMovementPlugin;
@@ -17,23 +16,40 @@ impl Plugin for PlayerMovementPlugin {
 
 fn player_movement(
     mut q_player_transform: Query<&mut Transform, With<Player>>,
-    mut q_player: Query<&mut Player>,
+    q_player: Query<&Player>,
     mut q_player_sprite: Query<&mut Sprite, With<Player>>,
-    player_input: Res<PlayerInput>,
 ) {
+    let player = q_player.single();
     let mut transform = q_player_transform.single_mut();
-    let mut player = q_player.single_mut();
 
-     if player.state != PlayerState::Moving {
-         return;
-     }
+    let PlayerState::Moving(direction) = player.state else {
+        return;
+    };
+
+    let x_direction_multiplier = if let Some(horizontal) = direction.horizontal {
+        match horizontal {
+            Horizontal::Right => 1.,
+            Horizontal::Left => { 
+                let mut player_sprite = q_player_sprite.get_single_mut().unwrap();
+                player_sprite.flip_x = true;
+                -1. 
+            }
+        }
+    } else {
+        0.
+    };
+
+    let y_direction_multiplier = if let Some(vertical) = direction.vertical {
+        match vertical {
+            Vertical::Up => 1.,
+            Vertical::Down => -1.
+        }
+    } else {
+        0.
+    };
 
     let translation = &mut transform.translation;
-    translation.x += player_input.move_direction.x * TIME_STEP * BASE_SPEED;
-    translation.y += player_input.move_direction.y * TIME_STEP * BASE_SPEED;
+    translation.x += TIME_STEP * BASE_SPEED * x_direction_multiplier;
+    translation.y += TIME_STEP * BASE_SPEED * y_direction_multiplier;
 
-    let mut player_sprite = q_player_sprite.get_single_mut().unwrap();
-    player_sprite.flip_x = player_input.move_direction.x < 0.;
-
-    player.state = PlayerState::Moving;
 }

@@ -1,9 +1,8 @@
 use bevy::prelude::*;
 
-use self::{
-    spells::{CooldownTimers, Spell},
-    state::PlayerState,
-};
+use self::
+    state::PlayerState
+;
 
 mod input;
 mod movement;
