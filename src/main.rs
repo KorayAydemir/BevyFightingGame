@@ -1,3 +1,4 @@
+// assets from https://craftpix.net/
 #![warn(clippy::pedantic)]
 #![allow(
     clippy::too_many_arguments,
