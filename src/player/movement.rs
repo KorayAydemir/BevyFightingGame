@@ -17,7 +17,6 @@ impl Plugin for PlayerMovementPlugin {
 fn player_movement(
     mut q_player_transform: Query<&mut Transform, With<Player>>,
     q_player: Query<&Player>,
-    mut q_player_sprite: Query<&mut Sprite, With<Player>>,
 ) {
     let player = q_player.single();
     let mut transform = q_player_transform.single_mut();
@@ -29,11 +28,7 @@ fn player_movement(
     let x_direction_multiplier = if let Some(horizontal) = direction.horizontal {
         match horizontal {
             Horizontal::Right => 1.,
-            Horizontal::Left => { 
-                let mut player_sprite = q_player_sprite.get_single_mut().unwrap();
-                player_sprite.flip_x = true;
-                -1. 
-            }
+            Horizontal::Left => -1.,
         }
     } else {
         0.
@@ -42,7 +37,7 @@ fn player_movement(
     let y_direction_multiplier = if let Some(vertical) = direction.vertical {
         match vertical {
             Vertical::Up => 1.,
-            Vertical::Down => -1.
+            Vertical::Down => -1.,
         }
     } else {
         0.
@@ -51,5 +46,4 @@ fn player_movement(
     let translation = &mut transform.translation;
     translation.x += TIME_STEP * BASE_SPEED * x_direction_multiplier;
     translation.y += TIME_STEP * BASE_SPEED * y_direction_multiplier;
-
 }

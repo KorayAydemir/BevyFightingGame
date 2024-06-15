@@ -54,8 +54,6 @@ fn main() {
         .add_plugins(HanabiPlugin)
         .add_plugins(FrameTimeDiagnosticsPlugin)
 
-
-
         .add_plugins(world::WorldPlugin)
         .add_plugins(player::PlayerPlugin)
         .add_plugins(ui::UiPlugin)
