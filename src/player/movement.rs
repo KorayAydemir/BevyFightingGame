@@ -16,12 +16,12 @@ impl Plugin for PlayerMovementPlugin {
 
 fn player_movement(
     mut q_player_transform: Query<&mut Transform, With<Player>>,
-    q_player: Query<&Player>,
+    player_state: Res<State<PlayerState>>,
 ) {
-    let player = q_player.single();
     let mut transform = q_player_transform.single_mut();
+    let player_state = player_state.get();
 
-    let PlayerState::Moving(direction) = player.state else {
+    let PlayerState::Moving(direction) = player_state else {
         return;
     };
 

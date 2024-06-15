@@ -8,7 +8,7 @@ use bevy_hanabi::{
 };
 
 use super::{
-    state::{PlayerChangedState, PlayerState},
+    state::PlayerState,
     Player,
 };
 
@@ -115,52 +115,57 @@ fn cast_spray_fire(
     mut commands: Commands,
     mut effects: ResMut<Assets<EffectAsset>>,
     mut q_player: Query<(Entity, &mut Player)>,
-    mut player_changed_state: EventReader<PlayerChangedState>,
+    player_state: Res<State<PlayerState>>,
     mut timers: ResMut<CooldownTimers>,
 ) {
-    for state in player_changed_state.read() {
-        if state.new_state != PlayerState::CastingSpell(Spell::SprayFire) {
-            return;
-        }
 
-        let spray_fire_timer = timers.0.get_mut(&Spell::SprayFire);
+    if !player_state.is_changed() {
+        return;
+    }
 
-        if let Some(timer) = spray_fire_timer {
-            if timer.finished() {
-                let cooldown_duration =
-                    Duration::from_secs(u64::from(Spell::SprayFire.details().cooldown));
-                timer.set_duration(cooldown_duration);
-                timer.reset();
-            } else {
-                return;
-            }
-        } else {
+    let player_state = player_state.get();
+
+    if *player_state != PlayerState::CastingSpell(Spell::SprayFire) {
+        return;
+    }
+
+    let spray_fire_timer = timers.0.get_mut(&Spell::SprayFire);
+
+    if let Some(timer) = spray_fire_timer {
+        if timer.finished() {
             let cooldown_duration =
                 Duration::from_secs(u64::from(Spell::SprayFire.details().cooldown));
+            timer.set_duration(cooldown_duration);
+            timer.reset();
+        } else {
+            return;
+        }
+    } else {
+        let cooldown_duration =
+            Duration::from_secs(u64::from(Spell::SprayFire.details().cooldown));
 
-            timers.0.insert(
-                Spell::SprayFire,
-                Timer::new(cooldown_duration, TimerMode::Once),
-            );
-        };
+        timers.0.insert(
+            Spell::SprayFire,
+            Timer::new(cooldown_duration, TimerMode::Once),
+        );
+    };
 
-        println!("Casting spray fire!");
+    println!("Casting spray fire!");
 
-        let effect = create_spray_fire_effect(&mut effects);
-        let fire_effect = commands
-            .spawn((
-                Name::new("emit:rate"),
-                ParticleEffectBundle {
-                    effect: ParticleEffect::new(effect),
-                    transform: Transform::from_translation(Vec3::new(30., 0., 0.))
-                        .with_rotation(Quat::from_rotation_z(1.)),
-                    ..Default::default()
-                },
-            ))
-            .id();
-        let (player_id, _player) = q_player.get_single_mut().unwrap();
-        commands.entity(player_id).push_children(&[fire_effect]);
-    }
+    let effect = create_spray_fire_effect(&mut effects);
+    let fire_effect = commands
+        .spawn((
+            Name::new("emit:rate"),
+            ParticleEffectBundle {
+                effect: ParticleEffect::new(effect),
+                transform: Transform::from_translation(Vec3::new(30., 0., 0.))
+                    .with_rotation(Quat::from_rotation_z(1.)),
+                ..Default::default()
+            },
+        ))
+        .id();
+    let (player_id, _player) = q_player.get_single_mut().unwrap();
+    commands.entity(player_id).push_children(&[fire_effect]);
 }
 
 pub struct PlayerSpellsPlugin;

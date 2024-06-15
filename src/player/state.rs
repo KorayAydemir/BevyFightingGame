@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 
-use super::{input::{PlayerInput, Direction}, spells::Spell, Player};
-
+use super::{
+    input::{Direction, PlayerInput},
+    spells::Spell,
+};
 
 #[derive(States, Hash, Eq, PartialEq, Debug, Default, Clone)]
 pub enum PlayerState {
@@ -11,85 +13,69 @@ pub enum PlayerState {
     CastingSpell(Spell),
 }
 
-fn switch_player_state(mut q_player: Query<&mut Player>, player_input: Res<PlayerInput>) {
-    let mut player = q_player.single_mut();
+fn switch_player_state(
+    player_state: Res<State<PlayerState>>,
+    mut player_next_state: ResMut<NextState<PlayerState>>,
+    player_input: Res<PlayerInput>,
+) {
+    let player_state = player_state.get();
 
-    match player.state {
+    match player_state {
         PlayerState::Idling => {
-            if let Some(direction) = player_input.move_direction { 
-                player.state = PlayerState::Moving(direction);
+            if let Some(direction) = player_input.move_direction {
+                player_next_state.set(PlayerState::Moving(direction));
             };
 
             if let Some(spell) = player_input.use_spell {
-                player.state = PlayerState::CastingSpell(spell);
+                player_next_state.set(PlayerState::CastingSpell(spell));
             };
         }
 
         PlayerState::Moving(_) => {
-            if let Some(direction) = player_input.move_direction { 
-                player.state = PlayerState::Moving(direction);
+            if let Some(direction) = player_input.move_direction {
+                player_next_state.set(PlayerState::Moving(direction));
             };
 
             if let Some(spell) = player_input.use_spell {
-                player.state = PlayerState::CastingSpell(spell);
+                player_next_state.set(PlayerState::CastingSpell(spell));
             };
 
             if player_input.move_direction.is_none() {
-                player.state = PlayerState::Idling;
+                player_next_state.set(PlayerState::Idling);
             }
         }
 
         PlayerState::CastingSpell(spell) => {
             match spell {
-                Spell::SprayFire => { }
+                Spell::SprayFire => {}
                 Spell::BlastWave => todo!(),
             }
 
             if let Some(direction) = player_input.move_direction {
-                player.state = PlayerState::Moving(direction);
+                player_next_state.set(PlayerState::Moving(direction));
             } else {
-                player.state = PlayerState::Idling;
+                player_next_state.set(PlayerState::Idling);
             }
         }
     }
 }
 
-#[derive(Event, Debug)]
-pub struct PlayerChangedState {
-    pub old_state: PlayerState,
-    pub new_state: PlayerState,
-}
-
-fn player_changed_state(
-    q_player: Query<&Player>,
-    mut ev_changed_state: EventWriter<PlayerChangedState>,
-    mut old_state: Local<PlayerState>,
+fn log_player_state_transitions(
+    mut ev_changed_state: EventReader<StateTransitionEvent<PlayerState>>,
 ) {
-    let player = q_player.get_single().unwrap();
-
-    if player.state != *old_state {
+    for event in ev_changed_state.read() {
         println!(
             "Player state changed: {:?} -> {:?}",
-            old_state, player.state
+            event.before, event.after
         );
-        ev_changed_state.send(PlayerChangedState {
-            old_state: old_state.clone(),
-            new_state: player.state.clone(),
-        });
-
-        *old_state = player.state.clone();
     }
 }
 
 pub struct PlayerStatePlugin;
 impl Plugin for PlayerStatePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<PlayerChangedState>().add_systems(
-            PostUpdate,
-            (
-                switch_player_state,
-                player_changed_state.after(switch_player_state),
-            ),
-        );
+        app.init_state::<PlayerState>()
+            .add_systems(PostUpdate, switch_player_state)
+            .add_systems(PostUpdate, log_player_state_transitions.after(switch_player_state));
     }
 }

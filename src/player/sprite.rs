@@ -17,17 +17,17 @@ impl Plugin for PlayerSpritePlugin {
     }
 }
 
-fn flip_sprite(mut q_player_sprite: Query<&mut Sprite, With<Player>>, mut q_player: Query<&Player>) {
+fn flip_sprite(mut q_player_sprite: Query<&mut Sprite, With<Player>>, player_state: Res<State<PlayerState>>) {
     let mut player_sprite = q_player_sprite.get_single_mut().unwrap();
-    let player = q_player.get_single_mut().unwrap();
+    let player_state = player_state.get();
 
-    if let PlayerState::Moving(direction) = player.state {
+    if let PlayerState::Moving(direction) = player_state {
         if let Some(Horizontal::Left) = direction.horizontal {
             player_sprite.flip_x = true;
         }
     }
 
-    if let PlayerState::Moving(direction) = player.state {
+    if let PlayerState::Moving(direction) = player_state {
         if let Some(Horizontal::Right) = direction.horizontal {
             player_sprite.flip_x = false;
         }

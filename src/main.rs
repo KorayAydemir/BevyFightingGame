@@ -16,7 +16,7 @@ use bevy::{
     diagnostic::FrameTimeDiagnosticsPlugin,
     prelude::*,
     render::{
-        camera::ScalingMode, render_resource::WgpuFeatures, settings::WgpuSettings, RenderPlugin,
+        render_resource::WgpuFeatures, settings::WgpuSettings, RenderPlugin,
     },
     window::{PresentMode, WindowMode},
 };
