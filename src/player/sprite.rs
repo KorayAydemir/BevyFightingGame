@@ -1,31 +1,16 @@
 use bevy::prelude::*;
 
-use super::{input::Horizontal, spawn::AnimationTimer, state::PlayerState, Player};
+use super::{input::Horizontal, state::PlayerState, Player};
+use crate::common::components::AnimationTimer;
 
 fn player_sprite_indicies(state: &PlayerState) -> (usize, usize) {
     match state {
         PlayerState::Idling => (8, 14),
         PlayerState::Moving(_) => (0, 7),
-        PlayerState::CastingSpell(_) => (13, 15),
+        PlayerState::CastingSpell(_) => (15, 18),
+        PlayerState::Melee => (16, 19),
     }
 }
-
-// todo: more generalized function for animating all sprites in the world
-//fn animate_sprite(
-//    time: Res<Time>,
-//    mut query: Query<(
-//        &mut AnimationIndices,
-//        &mut AnimationTimer,
-//        &mut TextureAtlas,
-//    )>,
-//) {
-//    for (mut indices, mut timer, mut atlas) in &mut query {
-//        timer.tick(time.delta());
-//
-//        if timer.just_finished() {
-//        }
-//    }
-//}
 
 fn update_indices(
     time: Res<Time>,

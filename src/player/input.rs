@@ -18,6 +18,7 @@ pub enum Vertical {
 pub struct PlayerInput {
     pub move_direction: Option<Direction>,
     pub use_spell: Option<Spell>,
+    pub use_melee: bool
 }
 
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
@@ -59,11 +60,16 @@ fn use_spray_fire(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<Play
     }
 }
 
+fn use_melee(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
+    player_input.use_melee = keys.just_pressed(KeyCode::Space);
+}
+
 pub struct PlayerInputPlugin;
 impl Plugin for PlayerInputPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<PlayerInput>()
             .add_systems(Update, player_movement)
-            .add_systems(Update, use_spray_fire);
+            .add_systems(Update, use_spray_fire)
+            .add_systems(Update, use_melee);
     }
 }

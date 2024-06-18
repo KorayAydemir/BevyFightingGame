@@ -10,6 +10,8 @@
 mod player;
 mod ui;
 mod world;
+mod enemy;
+mod common;
 
 use std::env;
 
@@ -19,7 +21,7 @@ use bevy::{
     render::{
         render_resource::WgpuFeatures, settings::WgpuSettings, RenderPlugin,
     },
-    window::{PresentMode, WindowMode},
+    window::{PresentMode, WindowMode, WindowResolution},
 };
 use bevy_hanabi::HanabiPlugin;
 use iyes_perf_ui::{PerfUiCompleteBundle, PerfUiPlugin};
@@ -40,6 +42,7 @@ fn main() {
                     primary_window: Some(Window {
                         present_mode: PresentMode::Fifo,
                         mode: WindowMode::Windowed,
+                        resolution: WindowResolution::new(820., 560.),
                         ..default()
                     }),
                     ..default()
@@ -58,6 +61,8 @@ fn main() {
         .add_plugins(world::WorldPlugin)
         .add_plugins(player::PlayerPlugin)
         .add_plugins(ui::UiPlugin)
+        //.add_plugins(enemy::EnemyPlugin)
+        .add_plugins(common::CommonPlugin)
 
         .add_systems(Startup, spawn_perfui)
         .run();

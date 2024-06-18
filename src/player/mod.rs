@@ -4,8 +4,8 @@ mod input;
 mod movement;
 mod spawn;
 pub mod spells;
-mod sprite;
-mod state;
+pub mod sprite;
+pub mod state;
 
 pub const PLAYER_SPAWN_POS: Vec3 = Vec3::new(-200., 0., 0.);
 pub const PLAYER_SCALE: Vec3 = Vec3::splat(1.);
