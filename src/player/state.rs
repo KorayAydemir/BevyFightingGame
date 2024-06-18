@@ -5,13 +5,34 @@ use super::{
     spells::Spell,
 };
 
+pub struct PlayerStatePlugin;
+impl Plugin for PlayerStatePlugin {
+    fn build(&self, app: &mut App) {
+        app.init_state::<PlayerState>()
+            .insert_resource(Melee {
+                cooldown_timer: Timer::from_seconds(3.0, TimerMode::Once),
+                swinging_timer: Timer::from_seconds(1.0, TimerMode::Repeating),
+            })
+            .add_systems(PostUpdate, switch_player_state)
+            .add_systems(
+                PostUpdate,
+                log_player_state_transitions.after(switch_player_state),
+            )
+            .add_systems(PostUpdate, melee_cooldown);
+    }
+}
+
 #[derive(Resource)]
 struct Melee {
     cooldown_timer: Timer,
     swinging_timer: Timer,
 }
 
-fn melee_cooldown(mut melee: ResMut<Melee>, time: Res<Time>, player_state: Res<State<PlayerState>>) {
+fn melee_cooldown(
+    mut melee: ResMut<Melee>,
+    time: Res<Time>,
+    player_state: Res<State<PlayerState>>,
+) {
     melee.cooldown_timer.tick(time.delta());
     if *player_state.get() == PlayerState::Melee {
         melee.swinging_timer.tick(time.delta());
@@ -48,7 +69,6 @@ fn switch_player_state(
             if let Some(spell) = player_input.use_spell {
                 player_next_state.set(PlayerState::CastingSpell(spell));
             };
-
 
             if player_input.use_melee && res_melee.cooldown_timer.finished() {
                 player_next_state.set(PlayerState::Melee);
@@ -104,22 +124,5 @@ fn log_player_state_transitions(
             "Player state changed: {:?} -> {:?}",
             event.before, event.after
         );
-    }
-}
-
-pub struct PlayerStatePlugin;
-impl Plugin for PlayerStatePlugin {
-    fn build(&self, app: &mut App) {
-        app.init_state::<PlayerState>()
-            .insert_resource(Melee {
-                cooldown_timer: Timer::from_seconds(3.0, TimerMode::Once),
-                swinging_timer: Timer::from_seconds(1.0, TimerMode::Repeating)
-            })
-            .add_systems(PostUpdate, switch_player_state)
-            .add_systems(
-                PostUpdate,
-                log_player_state_transitions.after(switch_player_state),
-            )
-            .add_systems(PostUpdate, melee_cooldown);
     }
 }

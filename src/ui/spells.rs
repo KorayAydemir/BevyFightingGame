@@ -2,6 +2,14 @@ use bevy::prelude::*;
 
 use crate::player::spells::{CooldownTimers, Spell};
 
+pub struct SpellsUiPlugin;
+impl Plugin for SpellsUiPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, spawn_cooldown_box);
+        app.add_systems(Update, update_cooldown_box);
+    }
+}
+
 #[derive(Component)]
 pub struct SpellBox;
 
@@ -73,13 +81,4 @@ fn spawn_cooldown_box(mut commands: Commands) {
                     ));
                 });
         });
-}
-
-pub struct SpellsUiPlugin;
-
-impl Plugin for SpellsUiPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_cooldown_box);
-        app.add_systems(Update, update_cooldown_box);
-    }
 }

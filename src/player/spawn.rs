@@ -1,7 +1,14 @@
 use bevy::prelude::*;
 
 use super::{Player, PLAYER_SCALE, PLAYER_SPAWN_POS};
-use crate::common::components::AnimationTimer;
+use crate::common::sprite::AnimationTimer;
+
+pub struct PlayerSpawnPlugin;
+impl Plugin for PlayerSpawnPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_systems(Startup, spawn_player);
+    }
+}
 
 fn spawn_player(
     mut commands: Commands,
@@ -24,12 +31,4 @@ fn spawn_player(
         Player::new(),
         AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
     ));
-}
-
-pub struct PlayerSpawnPlugin;
-
-impl Plugin for PlayerSpawnPlugin {
-    fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_player);
-    }
 }

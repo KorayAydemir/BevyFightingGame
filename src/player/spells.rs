@@ -1,5 +1,5 @@
-use std::time::Duration;
 use bevy::{prelude::*, utils::HashMap};
+use std::time::Duration;
 
 use bevy_hanabi::{
     AccelModifier, Attribute, ColorOverLifetimeModifier, EffectAsset, ExprWriter, Gradient,
@@ -7,10 +7,16 @@ use bevy_hanabi::{
     SetVelocitySphereModifier, ShapeDimension, SizeOverLifetimeModifier, Spawner,
 };
 
-use super::{
-    state::PlayerState,
-    Player,
-};
+use super::{state::PlayerState, Player};
+
+pub struct PlayerSpellsPlugin;
+impl Plugin for PlayerSpellsPlugin {
+    fn build(&self, app: &mut App) {
+        app.insert_resource(CooldownTimers(HashMap::default()))
+            .add_systems(Update, update_cooldown_timers)
+            .add_systems(Update, cast_spray_fire);
+    }
+}
 
 #[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
 pub struct SpellDetails {
@@ -118,7 +124,6 @@ fn cast_spray_fire(
     player_state: Res<State<PlayerState>>,
     mut timers: ResMut<CooldownTimers>,
 ) {
-
     if !player_state.is_changed() {
         return;
     }
@@ -141,8 +146,7 @@ fn cast_spray_fire(
             return;
         }
     } else {
-        let cooldown_duration =
-            Duration::from_secs(u64::from(Spell::SprayFire.details().cooldown));
+        let cooldown_duration = Duration::from_secs(u64::from(Spell::SprayFire.details().cooldown));
 
         timers.0.insert(
             Spell::SprayFire,
@@ -166,14 +170,4 @@ fn cast_spray_fire(
         .id();
     let (player_id, _player) = q_player.get_single_mut().unwrap();
     commands.entity(player_id).push_children(&[fire_effect]);
-}
-
-pub struct PlayerSpellsPlugin;
-
-impl Plugin for PlayerSpellsPlugin {
-    fn build(&self, app: &mut App) {
-        app.insert_resource(CooldownTimers(HashMap::default()))
-            .add_systems(Update, update_cooldown_timers)
-            .add_systems(Update, cast_spray_fire);
-    }
 }

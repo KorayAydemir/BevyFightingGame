@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 
 use super::{Slime, SLIME_SCALE, SLIME_SPAWN_POS};
-use crate::common::components::AnimationTimer;
-
+use crate::common::sprite::AnimationTimer;
 
 fn spawn_slime(mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>) {
     let layout = TextureAtlasLayout::from_grid(Vec2::new(128., 128.), 8, 3, None, None);

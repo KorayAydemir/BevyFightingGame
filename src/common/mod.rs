@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
-pub mod components;
+mod components;
+pub mod sprite;
 
 pub struct CommonPlugin;
 impl Plugin for CommonPlugin {
