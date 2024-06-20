@@ -1,31 +1,55 @@
 use bevy::prelude::*;
+use bevy_rapier2d::{prelude::*};
 
-use super::{Slime, SLIME_SCALE, SLIME_SPAWN_POS};
+use super::{state::SlimeState, Slime, MAX_SLIME_SCALE, MIN_SLIME_SCALE};
 use crate::common::sprite::AnimationTimer;
-
-fn spawn_slime(mut commands: Commands, asset_server: Res<AssetServer>, mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>) {
-    let layout = TextureAtlasLayout::from_grid(Vec2::new(128., 128.), 8, 3, None, None);
-
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
-
-    commands.spawn((
-        SpriteSheetBundle {
-            transform: Transform::from_translation(SLIME_SPAWN_POS).with_scale(SLIME_SCALE),
-            texture: asset_server.load("slime_blue.png"),
-            atlas: TextureAtlas {
-                layout: texture_atlas_layout,
-                index: 0,
-            },
-            ..default()
-        },
-        Slime::new(),
-        AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
-    ));
-}
+use rand::Rng;
 
 pub struct SlimeSpawnPlugin;
 impl Plugin for SlimeSpawnPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_slime);
+        app.add_systems(Startup, spawn_slimes::<2>);
+    }
+}
+
+fn spawn_slimes<const SLIME_AMOUNT: usize>(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+) {
+    let layout = TextureAtlasLayout::from_grid(Vec2::new(16., 24.), 4, 1, None, None);
+    let texture_atlas_layout = texture_atlas_layouts.add(layout);
+
+    for i in 0..=SLIME_AMOUNT {
+        let mut rng = rand::thread_rng();
+        let spawn_pos_x = rng.gen_range(-300.0..300.0);
+        let spawn_pos_y = rng.gen_range(-100.0..400.0);
+        let slime_spawn_pos = Vec3::new(spawn_pos_x, spawn_pos_y, 0.);
+
+        let random_slime_scale = rng.gen_range(MIN_SLIME_SCALE..MAX_SLIME_SCALE);
+        let slime_scale = Vec3::splat(random_slime_scale);
+
+        let slime = commands.spawn((
+            SpriteSheetBundle {
+                transform: Transform::from_translation(slime_spawn_pos).with_scale(slime_scale),
+                texture: asset_server.load("textures/mobs/slime-blue.png"),
+                atlas: TextureAtlas {
+                    layout: texture_atlas_layout.clone(),
+                    index: 0,
+                },
+                ..default()
+            },
+            Slime::new(i),
+            SlimeState::Patrolling,
+            AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
+        )).id();
+
+        let collider = commands.spawn((
+            Collider::ball(6.0),
+            TransformBundle::from_transform(Transform::from_translation(Vec3::new(0., -5., 0.))),
+            ActiveEvents::COLLISION_EVENTS
+        )).id();
+
+        commands.entity(slime).push_children(&[collider]);
     }
 }

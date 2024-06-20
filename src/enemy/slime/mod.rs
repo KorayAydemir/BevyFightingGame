@@ -1,23 +1,33 @@
 use bevy::prelude::*;
 
+mod movement;
 mod spawn;
+mod state;
+mod sprite;
+mod collision;
 
-const SLIME_SPAWN_POS: Vec3 = Vec3::new(200., 0., 0.);
-
-const SLIME_SCALE: Vec3 = Vec3::splat(1.);
+pub const MIN_SLIME_SCALE: f32 = 1.0;
+pub const MAX_SLIME_SCALE: f32 = 1.4;
 
 pub struct SlimePlugin;
 impl Plugin for SlimePlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugins(spawn::SlimeSpawnPlugin);
+        app.add_plugins(spawn::SlimeSpawnPlugin)
+            .add_plugins(movement::SlimeMovementPlugin)
+            .add_plugins(state::SlimeStatePlugin)
+            .add_plugins(sprite::SlimeSpritePlugin)
+            .add_plugins(collision::SlimeCollisionPlugin);
     }
 }
 
-
 #[derive(Component)]
-pub struct Slime;
+pub struct Slime {
+    id: usize,
+}
 impl Slime {
-    pub fn new() -> Slime {
-        Slime {}
+    pub fn new(id: usize) -> Slime {
+        Slime {
+            id,
+        }
     }
 }

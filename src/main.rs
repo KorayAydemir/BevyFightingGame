@@ -7,23 +7,25 @@
     clippy::needless_pass_by_value
 )]
 
+mod common;
+mod enemy;
 mod player;
 mod ui;
 mod world;
-mod enemy;
-mod common;
 
 use std::env;
 
 use bevy::{
     diagnostic::FrameTimeDiagnosticsPlugin,
     prelude::*,
-    render::{
-        render_resource::WgpuFeatures, settings::WgpuSettings, RenderPlugin,
-    },
+    render::{render_resource::WgpuFeatures, settings::WgpuSettings, RenderPlugin},
     window::{PresentMode, WindowMode, WindowResolution},
 };
 use bevy_hanabi::HanabiPlugin;
+use bevy_rapier2d::{
+    plugin::{NoUserData, RapierPhysicsPlugin},
+    render::RapierDebugRenderPlugin,
+};
 use iyes_perf_ui::{PerfUiCompleteBundle, PerfUiPlugin};
 
 fn main() {
@@ -53,7 +55,10 @@ fn main() {
                 }),
         )
         .insert_resource(Msaa::Off)
-
+        .add_plugins((
+            RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0),
+            RapierDebugRenderPlugin::default(),
+        ))
         .add_plugins(PerfUiPlugin)
         .add_plugins(HanabiPlugin)
         .add_plugins(FrameTimeDiagnosticsPlugin)
@@ -61,9 +66,8 @@ fn main() {
         .add_plugins(world::WorldPlugin)
         .add_plugins(player::PlayerPlugin)
         .add_plugins(ui::UiPlugin)
-        //.add_plugins(enemy::EnemyPlugin)
+        .add_plugins(enemy::EnemyPlugin)
         .add_plugins(common::CommonPlugin)
-
         .add_systems(Startup, spawn_perfui)
         .run();
 }

@@ -39,10 +39,6 @@ fn melee_cooldown(
     }
 }
 
-pub enum EntityState {
-    Player(PlayerState),
-}
-
 #[derive(States, Hash, Eq, PartialEq, Debug, Default, Clone)]
 pub enum PlayerState {
     #[default]

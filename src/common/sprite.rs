@@ -4,7 +4,7 @@ use bevy::prelude::*;
 pub struct AnimationTimer(pub Timer);
 
 pub fn update_spritesheet_indices(
-    time: Res<Time>,
+    time: &Res<Time>,
     mut timer: Mut<AnimationTimer>,
     mut atlas: Mut<TextureAtlas>,
     res_entity_state: impl DetectChanges,
@@ -21,8 +21,6 @@ pub fn update_spritesheet_indices(
             atlas.index = indices.0;
         }
 
-        println!("atlas index {}", atlas.index);
-        println!("anim ind {}", indices.1);
         if atlas.index == indices.1 {
             atlas.index = indices.0;
         } else {

@@ -154,8 +154,6 @@ fn cast_spray_fire(
         );
     };
 
-    println!("Casting spray fire!");
-
     let effect = create_spray_fire_effect(&mut effects);
     let fire_effect = commands
         .spawn((

@@ -23,14 +23,14 @@ fn player_sprite_indicies(state: &PlayerState) -> (usize, usize) {
 
 fn update_indices(
     time: Res<Time>,
-    mut q_player_anim: Query<(&mut AnimationTimer, &mut TextureAtlas)>,
+    mut q_player_anim: Query<(&mut AnimationTimer, &mut TextureAtlas), With<Player>>,
     res_player_state: Res<State<PlayerState>>,
 ) {
-    let (animation_timer, atlas) = q_player_anim.single_mut();
+    let (animation_timer, atlas) = q_player_anim.get_single_mut().unwrap();
     let player_state = res_player_state.get();
     let indices = player_sprite_indicies(player_state);
 
-    update_spritesheet_indices(time, animation_timer, atlas, res_player_state, indices);
+    update_spritesheet_indices(&time, animation_timer, atlas, res_player_state, indices);
 }
 
 fn flip_sprite(

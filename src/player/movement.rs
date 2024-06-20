@@ -4,8 +4,7 @@ use super::input::{Horizontal, Vertical};
 use super::state::PlayerState;
 use super::Player;
 
-const TIME_STEP: f32 = 1. / 60.;
-const BASE_SPEED: f32 = 65.;
+const BASE_SPEED: f32 = 250.;
 
 pub struct PlayerMovementPlugin;
 impl Plugin for PlayerMovementPlugin {
@@ -17,8 +16,8 @@ impl Plugin for PlayerMovementPlugin {
 fn player_movement(
     mut q_player_transform: Query<&mut Transform, With<Player>>,
     player_state: Res<State<PlayerState>>,
+    time: Res<Time>
 ) {
-    let mut transform = q_player_transform.single_mut();
     let player_state = player_state.get();
 
     let PlayerState::Moving(direction) = player_state else {
@@ -43,7 +42,8 @@ fn player_movement(
         0.
     };
 
+    let mut transform = q_player_transform.single_mut();
     let translation = &mut transform.translation;
-    translation.x += TIME_STEP * BASE_SPEED * x_direction_multiplier;
-    translation.y += TIME_STEP * BASE_SPEED * y_direction_multiplier;
+    translation.x += time.delta_seconds() * BASE_SPEED * x_direction_multiplier;
+    translation.y += time.delta_seconds() * BASE_SPEED * y_direction_multiplier;
 }
