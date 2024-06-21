@@ -1,8 +1,8 @@
 use bevy::prelude::*;
-use bevy_rapier2d::{prelude::*};
+use bevy_rapier2d::prelude::*;
 
 use super::{state::SlimeState, Slime, MAX_SLIME_SCALE, MIN_SLIME_SCALE};
-use crate::common::sprite::AnimationTimer;
+use crate::{common::sprite::AnimationTimer, enemy::Enemy};
 use rand::Rng;
 
 pub struct SlimeSpawnPlugin;
@@ -30,6 +30,7 @@ fn spawn_slimes<const SLIME_AMOUNT: usize>(
         let slime_scale = Vec3::splat(random_slime_scale);
 
         let slime = commands.spawn((
+            RigidBody::KinematicPositionBased,
             SpriteSheetBundle {
                 transform: Transform::from_translation(slime_spawn_pos).with_scale(slime_scale),
                 texture: asset_server.load("textures/mobs/slime-blue.png"),
@@ -41,13 +42,15 @@ fn spawn_slimes<const SLIME_AMOUNT: usize>(
             },
             Slime::new(i),
             SlimeState::Patrolling,
+            Enemy { damage: 0.5 },
             AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
         )).id();
 
         let collider = commands.spawn((
             Collider::ball(6.0),
             TransformBundle::from_transform(Transform::from_translation(Vec3::new(0., -5., 0.))),
-            ActiveEvents::COLLISION_EVENTS
+            ActiveEvents::COLLISION_EVENTS,
+            ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_KINEMATIC
         )).id();
 
         commands.entity(slime).push_children(&[collider]);

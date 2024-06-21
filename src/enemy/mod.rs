@@ -8,3 +8,8 @@ impl Plugin for EnemyPlugin {
         app.add_plugins(slime::SlimePlugin);
     }
 }
+
+#[derive(Component)]
+pub struct Enemy {
+    pub damage: f32
+}

@@ -4,7 +4,7 @@ use super::input::{Horizontal, Vertical};
 use super::state::PlayerState;
 use super::Player;
 
-const BASE_SPEED: f32 = 250.;
+const BASE_SPEED: f32 = 200.;
 
 pub struct PlayerMovementPlugin;
 impl Plugin for PlayerMovementPlugin {

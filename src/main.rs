@@ -65,9 +65,9 @@ fn main() {
 
         .add_plugins(world::WorldPlugin)
         .add_plugins(player::PlayerPlugin)
-        .add_plugins(ui::UiPlugin)
         .add_plugins(enemy::EnemyPlugin)
         .add_plugins(common::CommonPlugin)
+        .add_plugins(ui::UiPlugin)
         .add_systems(Startup, spawn_perfui)
         .run();
 }
