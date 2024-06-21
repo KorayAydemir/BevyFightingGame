@@ -34,6 +34,9 @@ fn update_cooldown_box(
             Spell::BlastWave => {
                 todo!()
             }
+            Spell::Melee => {
+                Val::Percent(0.)
+            }
         }
     }
 }

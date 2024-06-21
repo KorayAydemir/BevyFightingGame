@@ -13,8 +13,60 @@ pub struct PlayerSpellsPlugin;
 impl Plugin for PlayerSpellsPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(CooldownTimers(HashMap::default()))
+            .insert_resource(CastingTimers(HashMap::default()))
             .add_systems(Update, update_cooldown_timers)
-            .add_systems(Update, cast_spray_fire);
+            .add_systems(Update, update_casting_timers)
+            .add_systems(Update, cast_spray_fire)
+            .add_systems(Update, melee_attack);
+    }
+}
+
+fn melee_attack(
+    player_state: Res<State<PlayerState>>,
+    mut cooldown_timers: ResMut<CooldownTimers>,
+    mut casting_timers: ResMut<CastingTimers>,
+) {
+    if !player_state.is_changed() {
+        return;
+    }
+
+    let player_state = player_state.get();
+
+    if *player_state != PlayerState::Melee {
+        return;
+    }
+
+    let cooldown_timer = cooldown_timers.0.get_mut(&Spell::Melee);
+
+    if let Some(cooldown) = cooldown_timer {
+        if cooldown.finished() {
+            let cooldown_duration = Duration::from_secs(u64::from(Spell::Melee.details().cooldown));
+            cooldown.set_duration(cooldown_duration);
+            cooldown.reset();
+        } else {
+            #[allow(clippy::needless_return)]
+            return;
+        }
+    } else {
+        let cooldown_duration = Duration::from_secs(u64::from(Spell::Melee.details().cooldown));
+
+        cooldown_timers
+            .0
+            .insert(Spell::Melee, Timer::new(cooldown_duration, TimerMode::Once));
+    };
+
+    let casting_timer = casting_timers.0.get_mut(&Spell::Melee);
+
+    if let Some(casting) = casting_timer {
+        let casting_duration = Duration::from_secs(u64::from(Spell::Melee.details().cast_time));
+        casting.set_duration(casting_duration);
+        casting.reset();
+    } else {
+        let casting_duration = Duration::from_secs(u64::from(Spell::Melee.details().cast_time));
+
+        casting_timers
+            .0
+            .insert(Spell::Melee, Timer::new(casting_duration, TimerMode::Once));
     }
 }
 
@@ -29,6 +81,7 @@ pub struct SpellDetails {
 pub enum Spell {
     SprayFire,
     BlastWave,
+    Melee,
 }
 
 impl Spell {
@@ -44,14 +97,28 @@ impl Spell {
                 cooldown: 2,
                 mana_cost: 10,
             },
+            Spell::Melee => SpellDetails {
+                cast_time: 1,
+                cooldown: 1,
+                mana_cost: 0,
+            },
         }
     }
 }
 
 #[derive(Resource)]
+pub struct CastingTimers(pub HashMap<Spell, Timer>);
+
+#[derive(Resource)]
 pub struct CooldownTimers(pub HashMap<Spell, Timer>);
 
 fn update_cooldown_timers(time: Res<Time>, mut timers: ResMut<CooldownTimers>) {
+    for (_spell, timer) in &mut timers.0 {
+        timer.tick(time.delta());
+    }
+}
+
+fn update_casting_timers(time: Res<Time>, mut timers: ResMut<CastingTimers>) {
     for (_spell, timer) in &mut timers.0 {
         timer.tick(time.delta());
     }

@@ -45,6 +45,4 @@ pub fn slime_collision(
         println!("reduce hp");
         health.health -= enemy.damage;
     }
-
-
 }
