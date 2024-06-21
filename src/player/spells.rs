@@ -99,7 +99,7 @@ impl Spell {
             },
             Spell::Melee => SpellDetails {
                 cast_time: 1,
-                cooldown: 1,
+                cooldown: 3,
                 mana_cost: 0,
             },
         }

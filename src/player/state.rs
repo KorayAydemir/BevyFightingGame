@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use super::{
     input::{Direction, PlayerInput},
-    spells::{CooldownTimers, Spell},
+    spells::{CastingTimers, CooldownTimers, Spell},
 };
 
 pub struct PlayerStatePlugin;
@@ -30,7 +30,8 @@ fn switch_player_state(
     player_state: Res<State<PlayerState>>,
     mut player_next_state: ResMut<NextState<PlayerState>>,
     player_input: Res<PlayerInput>,
-    cooldown_timers: Res<CooldownTimers>
+    casting_timers: Res<CastingTimers>,
+    cd_timers: Res<CooldownTimers>
 ) {
     let player_state = player_state.get();
 
@@ -44,7 +45,7 @@ fn switch_player_state(
                 player_next_state.set(PlayerState::CastingSpell(spell));
             };
 
-            if player_input.use_melee {
+            if player_input.use_melee && !is_melee_in_cooldown(cd_timers) {
                 player_next_state.set(PlayerState::Melee);
             }
         }
@@ -62,7 +63,7 @@ fn switch_player_state(
                 player_next_state.set(PlayerState::Idling);
             }
 
-            if player_input.use_melee {
+            if player_input.use_melee && !is_melee_in_cooldown(cd_timers) {
                 player_next_state.set(PlayerState::Melee);
             }
         }
@@ -82,8 +83,8 @@ fn switch_player_state(
         }
 
         PlayerState::Melee => {
-            if let Some(cooldown) = cooldown_timers.0.get(&Spell::Melee) {
-                if !cooldown.finished() {
+            if let Some(casting) = casting_timers.0.get(&Spell::Melee) {
+                if !casting.finished() {
                     return;
                 }
             }
@@ -96,6 +97,19 @@ fn switch_player_state(
         }
     }
 }
+
+fn is_melee_in_cooldown(
+    cooldown_timers: Res<CooldownTimers>,
+) -> bool {
+    if let Some(cooldown) = cooldown_timers.0.get(&Spell::Melee) {
+        !cooldown.finished()
+    } else {
+        false
+    }
+
+}
+
+
 
 fn log_player_state_transitions(
     mut ev_changed_state: EventReader<StateTransitionEvent<PlayerState>>,
