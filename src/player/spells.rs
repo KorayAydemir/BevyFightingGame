@@ -83,6 +83,9 @@ pub enum Spell {
     BlastWave,
     Melee,
 }
+impl Spell {
+    pub const VALUES: [Self; 3] = [Self::SprayFire, Self::BlastWave, Self::Melee];
+}
 
 impl Spell {
     fn details(self) -> SpellDetails {
