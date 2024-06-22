@@ -21,15 +21,21 @@ fn update_cooldown_box(
         style.height = match spell {
             Spell::SprayFire => {
                 if let Some(timer) = cooldown_timers.0.get(&Spell::SprayFire) {
-                    Val::Percent(timer.elapsed_secs() * 50.)
+                    Val::Percent(timer.remaining_secs() * 50.)
                 } else {
                     Val::Percent(0.)
                 }
             }
-            Spell::BlastWave => Val::Percent(0.),
+            Spell::BlastWave => {
+                if let Some(timer) = cooldown_timers.0.get(&Spell::BlastWave) {
+                    Val::Percent(timer.remaining_secs() * 50.)
+                } else {
+                    Val::Percent(0.)
+                }
+            }
             Spell::Melee => {
                 if let Some(timer) = cooldown_timers.0.get(&Spell::Melee) {
-                    Val::Percent(timer.elapsed_secs() * 50.)
+                    Val::Percent(timer.remaining_secs() * 50.)
                 } else {
                     Val::Percent(0.)
                 }
@@ -60,33 +66,49 @@ fn spawn_cooldown_box_for_spell(
     let spell_details = spell_type.details();
     container.with_children(|parent| {
         parent
-            .spawn(NodeBundle {
-                style: Style {
-                    width: Val::Px(55.0),
-                    height: Val::Percent(100.0),
-                    border: UiRect::all(Val::Px(5.)),
-                    left: Val::Px(210. + (i * 30.)),
+            .spawn((
+                NodeBundle {
+                    style: Style {
+                        width: Val::Px(55.0),
+                        height: Val::Percent(100.0),
+                        left: Val::Px(210. + (i * 30.)),
+                        ..default()
+                    },
+                    background_color: Color::rgb(0., 255., 0.).into(),
                     ..default()
                 },
-                border_color: Color::GREEN.into(),
-                background_color: Color::rgb(0., 0., 0.).into(),
-                ..default()
+                Outline::new(Val::Px(5.), Val::ZERO, Color::GREEN),
+            ))
+            .with_children(|parent| {
+                parent.spawn((
+                    NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.0),
+                            height: Val::Percent(100.0),
+                            position_type: PositionType::Absolute,
+                            bottom: Val::Px(0.),
+                            ..default()
+                        },
+                        background_color: Color::rgba(0., 0., 0., 0.8).into(),
+                        z_index: ZIndex::Global(20),
+                        ..default()
+                    },
+                    spell_type,
+                    SpellBox,
+                ));
             })
             .with_children(|parent| {
                 parent
-                    .spawn((
-                        NodeBundle {
-                            style: Style {
-                                width: Val::Percent(100.0),
-                                height: Val::Percent(100.0),
-                                ..default()
-                            },
-                            background_color: Color::rgb(255., 0., 0.).into(),
+                    .spawn((NodeBundle {
+                        style: Style {
+                            width: Val::Percent(100.0),
+                            height: Val::Percent(100.0),
                             ..default()
                         },
-                        spell_type,
-                        SpellBox,
-                    ))
+                        z_index: ZIndex::Global(10),
+                        background_color: Color::rgb(0., 0., 255.).into(),
+                        ..default()
+                    },))
                     .with_children(|parent| {
                         parent.spawn(ImageBundle {
                             image: UiImage::new(asset_server.load(spell_details.ui_icon)),
