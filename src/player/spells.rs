@@ -1,4 +1,5 @@
 use bevy::{prelude::*, utils::HashMap};
+use bevy_rapier2d::prelude::*;
 use std::time::Duration;
 
 use bevy_hanabi::{
@@ -22,9 +23,11 @@ impl Plugin for PlayerSpellsPlugin {
 }
 
 fn melee_attack(
+    mut commands: Commands,
     player_state: Res<State<PlayerState>>,
     mut cooldown_timers: ResMut<CooldownTimers>,
     mut casting_timers: ResMut<CastingTimers>,
+    q_player: Query<(Entity, &Sprite), With<Player>>,
 ) {
     if !player_state.is_changed() {
         return;
@@ -38,13 +41,12 @@ fn melee_attack(
 
     let cooldown_timer = cooldown_timers.0.get_mut(&Spell::Melee);
 
-    if let Some(cooldown) = cooldown_timer {
-        if cooldown.finished() {
+    if let Some(timer) = cooldown_timer {
+        if timer.finished() {
             let cooldown_duration = Duration::from_secs(u64::from(Spell::Melee.details().cooldown));
-            cooldown.set_duration(cooldown_duration);
-            cooldown.reset();
+            timer.set_duration(cooldown_duration);
+            timer.reset();
         } else {
-            #[allow(clippy::needless_return)]
             return;
         }
     } else {
@@ -57,10 +59,10 @@ fn melee_attack(
 
     let casting_timer = casting_timers.0.get_mut(&Spell::Melee);
 
-    if let Some(casting) = casting_timer {
+    if let Some(timer) = casting_timer {
         let casting_duration = Duration::from_secs(u64::from(Spell::Melee.details().cast_time));
-        casting.set_duration(casting_duration);
-        casting.reset();
+        timer.set_duration(casting_duration);
+        timer.reset();
     } else {
         let casting_duration = Duration::from_secs(u64::from(Spell::Melee.details().cast_time));
 
@@ -68,6 +70,34 @@ fn melee_attack(
             .0
             .insert(Spell::Melee, Timer::new(casting_duration, TimerMode::Once));
     }
+
+    /////////////
+
+    let (player_entity, player_sprite) = q_player.single();
+    create_melee_hitbox(&mut commands, player_entity, player_sprite);
+}
+
+#[derive(Component)]
+pub struct PlayerMeleeHitbox;
+
+fn create_melee_hitbox(commands: &mut Commands, player_entity: Entity, player_sprite: &Sprite) {
+    let mut transform = Transform::from_translation(Vec3::new(36., -24., 0.));
+    if player_sprite.flip_x {
+        transform.translation.x *= -1.;
+    }
+    let melee_hitbox = commands
+        .spawn((
+            PlayerMeleeHitbox,
+            Collider::cuboid(30., 10.),
+            TransformBundle::from_transform(transform),
+            ActiveEvents::COLLISION_EVENTS,
+            ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
+        ))
+        .id();
+
+    commands
+        .entity(player_entity)
+        .push_children(&[melee_hitbox]);
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
@@ -75,7 +105,7 @@ pub struct SpellDetails<'a> {
     pub cast_time: u32,
     pub cooldown: u32,
     pub mana_cost: u32,
-    pub ui_icon: &'a str
+    pub ui_icon: &'a str,
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
@@ -95,19 +125,19 @@ impl Spell {
                 cast_time: 1,
                 cooldown: 2,
                 mana_cost: 10,
-                ui_icon: "skill_icons/FireMage_17.png"
+                ui_icon: "skill_icons/FireMage_17.png",
             },
             Spell::BlastWave => SpellDetails {
                 cast_time: 2,
                 cooldown: 2,
                 mana_cost: 10,
-                ui_icon: "skill_icons/FireMage_20.png"
+                ui_icon: "skill_icons/FireMage_20.png",
             },
             Spell::Melee => SpellDetails {
                 cast_time: 1,
                 cooldown: 2,
                 mana_cost: 0,
-                ui_icon: "skill_icons/FireMage_29.png"
+                ui_icon: "skill_icons/FireMage_29.png",
             },
         }
     }

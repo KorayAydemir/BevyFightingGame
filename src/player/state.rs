@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use super::{
     input::{Direction, PlayerInput},
-    spells::{CastingTimers, CooldownTimers, Spell},
+    spells::{CastingTimers, CooldownTimers, PlayerMeleeHitbox, Spell},
 };
 
 pub struct PlayerStatePlugin;
@@ -31,7 +31,9 @@ fn switch_player_state(
     mut player_next_state: ResMut<NextState<PlayerState>>,
     player_input: Res<PlayerInput>,
     casting_timers: Res<CastingTimers>,
-    cd_timers: Res<CooldownTimers>
+    cd_timers: Res<CooldownTimers>,
+    q_entity_melee_hitbox: Query<Entity, With<PlayerMeleeHitbox>>,
+    mut commands: Commands,
 ) {
     let player_state = player_state.get();
 
@@ -72,7 +74,7 @@ fn switch_player_state(
             match spell {
                 Spell::SprayFire => {}
                 Spell::BlastWave => todo!(),
-                Spell::Melee => {},
+                Spell::Melee => {}
             }
 
             if let Some(direction) = player_input.move_direction {
@@ -87,6 +89,11 @@ fn switch_player_state(
                 if !casting.finished() {
                     return;
                 }
+
+                if casting.finished() {
+                    let entity_melee_hitbox = q_entity_melee_hitbox.single();
+                    commands.entity(entity_melee_hitbox).despawn();
+                }
             }
 
             if let Some(direction) = player_input.move_direction {
@@ -98,18 +105,13 @@ fn switch_player_state(
     }
 }
 
-fn is_melee_in_cooldown(
-    cooldown_timers: Res<CooldownTimers>,
-) -> bool {
+fn is_melee_in_cooldown(cooldown_timers: Res<CooldownTimers>) -> bool {
     if let Some(cooldown) = cooldown_timers.0.get(&Spell::Melee) {
         !cooldown.finished()
     } else {
         false
     }
-
 }
-
-
 
 fn log_player_state_transitions(
     mut ev_changed_state: EventReader<StateTransitionEvent<PlayerState>>,

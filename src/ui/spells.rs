@@ -69,8 +69,8 @@ fn spawn_cooldown_box_for_spell(
             .spawn((
                 NodeBundle {
                     style: Style {
-                        width: Val::Px(55.0),
-                        height: Val::Px(55.0),
+                        width: Val::Px(60.0),
+                        height: Val::Px(60.0),
                         left: Val::Px(210. + (i * 30.)),
                         ..default()
                     },
