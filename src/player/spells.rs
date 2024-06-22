@@ -71,10 +71,11 @@ fn melee_attack(
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
-pub struct SpellDetails {
+pub struct SpellDetails<'a> {
     pub cast_time: u32,
     pub cooldown: u32,
     pub mana_cost: u32,
+    pub ui_icon: &'a str
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
@@ -88,22 +89,25 @@ impl Spell {
 }
 
 impl Spell {
-    fn details(self) -> SpellDetails {
+    pub fn details(self) -> SpellDetails<'static> {
         match self {
             Spell::SprayFire => SpellDetails {
                 cast_time: 1,
                 cooldown: 2,
                 mana_cost: 10,
+                ui_icon: "skill_icons/FireMage_17.png"
             },
             Spell::BlastWave => SpellDetails {
                 cast_time: 2,
                 cooldown: 2,
                 mana_cost: 10,
+                ui_icon: "skill_icons/FireMage_20.png"
             },
             Spell::Melee => SpellDetails {
                 cast_time: 1,
-                cooldown: 3,
+                cooldown: 2,
                 mana_cost: 0,
+                ui_icon: "skill_icons/FireMage_29.png"
             },
         }
     }

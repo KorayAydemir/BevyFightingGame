@@ -41,26 +41,31 @@ fn update_cooldown_box(
 fn spawn_cooldown_boxes_container<'a>(commands: &'a mut Commands) -> EntityCommands<'a> {
     commands.spawn(NodeBundle {
         style: Style {
-            width: Val::Percent(100.0),
-            height: Val::Percent(100.0),
-            justify_content: JustifyContent::SpaceBetween,
+            width: Val::Percent(80.0),
+            height: Val::Percent(10.0),
+            position_type: PositionType::Absolute,
+            bottom: Val::Px(10.),
             ..default()
         },
         ..default()
     })
 }
 
-fn spawn_cooldown_box_for_spell(container: &mut EntityCommands, spell_type: Spell, i: f32) {
+fn spawn_cooldown_box_for_spell(
+    container: &mut EntityCommands,
+    spell_type: Spell,
+    i: f32,
+    asset_server: &Res<AssetServer>,
+) {
+    let spell_details = spell_type.details();
     container.with_children(|parent| {
         parent
             .spawn(NodeBundle {
                 style: Style {
-                    width: Val::Px(50.0),
-                    height: Val::Px(50.0),
-                    position_type: PositionType::Absolute,
+                    width: Val::Px(55.0),
+                    height: Val::Percent(100.0),
+                    border: UiRect::all(Val::Px(5.)),
                     left: Val::Px(210. + (i * 30.)),
-                    bottom: Val::Px(10.),
-                    border: UiRect::all(Val::Px(20.)),
                     ..default()
                 },
                 border_color: Color::GREEN.into(),
@@ -68,27 +73,34 @@ fn spawn_cooldown_box_for_spell(container: &mut EntityCommands, spell_type: Spel
                 ..default()
             })
             .with_children(|parent| {
-                parent.spawn((
-                    NodeBundle {
-                        style: Style {
-                            width: Val::Percent(100.0),
-                            height: Val::Percent(100.0),
+                parent
+                    .spawn((
+                        NodeBundle {
+                            style: Style {
+                                width: Val::Percent(100.0),
+                                height: Val::Percent(100.0),
+                                ..default()
+                            },
+                            background_color: Color::rgb(255., 0., 0.).into(),
                             ..default()
                         },
-                        background_color: Color::rgb(1., 1., 1.).into(),
-                        ..default()
-                    },
-                    spell_type,
-                    SpellBox,
-                ));
+                        spell_type,
+                        SpellBox,
+                    ))
+                    .with_children(|parent| {
+                        parent.spawn(ImageBundle {
+                            image: UiImage::new(asset_server.load(spell_details.ui_icon)),
+                            ..default()
+                        });
+                    });
             });
     });
 }
 
-fn spawn_cooldown_box(mut commands: Commands) {
+fn spawn_cooldown_box(mut commands: Commands, asset_server: Res<AssetServer>) {
     let mut container = spawn_cooldown_boxes_container(&mut commands);
 
     for (i, spell) in Spell::VALUES.iter().enumerate() {
-        spawn_cooldown_box_for_spell(&mut container, *spell, i as f32);
+        spawn_cooldown_box_for_spell(&mut container, *spell, i as f32, &asset_server);
     }
 }
