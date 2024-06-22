@@ -70,7 +70,7 @@ fn spawn_cooldown_box_for_spell(
                 NodeBundle {
                     style: Style {
                         width: Val::Px(55.0),
-                        height: Val::Percent(100.0),
+                        height: Val::Px(55.0),
                         left: Val::Px(210. + (i * 30.)),
                         ..default()
                     },
