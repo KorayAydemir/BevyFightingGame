@@ -36,7 +36,6 @@ pub fn slime_collision(
                 Err(_) => continue,
             }
         } else {
-            println!("continue");
             continue;
         };
 

@@ -28,6 +28,8 @@ use bevy_rapier2d::{
 };
 use iyes_perf_ui::{PerfUiCompleteBundle, PerfUiPlugin};
 
+// TODO: make player melee hitbox appear a bit after player presses space (when sword goes out on animation)
+
 fn main() {
     env::set_var("RUST_BACKTRACE", "1");
 

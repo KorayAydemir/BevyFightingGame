@@ -35,7 +35,7 @@ fn update_cooldown_box(
             }
             Spell::Melee => {
                 if let Some(timer) = cooldown_timers.0.get(&Spell::Melee) {
-                    Val::Percent(timer.remaining_secs() * 50.)
+                    Val::Percent(timer.remaining_secs() * (100. / timer.remaining_secs()))
                 } else {
                     Val::Percent(0.)
                 }
@@ -89,7 +89,7 @@ fn spawn_cooldown_box_for_spell(
                             bottom: Val::Px(0.),
                             ..default()
                         },
-                        background_color: Color::rgba(0., 0., 0., 0.8).into(),
+                        background_color: Color::rgba(0., 0., 0., 0.9).into(),
                         z_index: ZIndex::Global(20),
                         ..default()
                     },

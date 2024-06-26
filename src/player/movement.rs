@@ -42,8 +42,13 @@ fn player_movement(
         0.
     };
 
-    let mut transform = q_player_transform.single_mut();
-    let translation = &mut transform.translation;
+    let translation = &mut q_player_transform.single_mut().translation;
+
+    if y_direction_multiplier == 1. {
+        translation.y += time.delta_seconds() / 2. * 800. * y_direction_multiplier;
+    } else {
+        translation.y += time.delta_seconds() * BASE_SPEED * y_direction_multiplier;
+    }
+
     translation.x += time.delta_seconds() * BASE_SPEED * x_direction_multiplier;
-    translation.y += time.delta_seconds() * BASE_SPEED * y_direction_multiplier;
 }

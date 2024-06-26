@@ -135,7 +135,7 @@ impl Spell {
             },
             Spell::Melee => SpellDetails {
                 cast_time: 1,
-                cooldown: 2,
+                cooldown: 3,
                 mana_cost: 0,
                 ui_icon: "skill_icons/FireMage_29.png",
             },
