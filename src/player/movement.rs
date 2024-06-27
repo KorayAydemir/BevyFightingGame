@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::GameState;
+
 use super::input::{Horizontal, Vertical};
 use super::state::PlayerState;
 use super::Player;
@@ -9,7 +11,7 @@ const BASE_SPEED: f32 = 200.;
 pub struct PlayerMovementPlugin;
 impl Plugin for PlayerMovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, player_movement);
+        app.add_systems(Update, player_movement.run_if(in_state(GameState::Playing)));
     }
 }
 

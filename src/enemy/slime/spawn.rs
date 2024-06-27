@@ -22,7 +22,7 @@ fn spawn_slimes<const SLIME_AMOUNT: usize>(
 
     for i in 0..=SLIME_AMOUNT {
         let mut rng = rand::thread_rng();
-        let spawn_pos_x = rng.gen_range(-300.0..300.0);
+        let spawn_pos_x = rng.gen_range(-200.0..400.0);
         let spawn_pos_y = rng.gen_range(-100.0..400.0);
         let slime_spawn_pos = Vec3::new(spawn_pos_x, spawn_pos_y, 0.);
 

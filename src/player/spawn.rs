@@ -1,14 +1,15 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use bevy_ecs_ldtk::prelude::*;
 
 use super::{Health, Player, PLAYER_MAX_HEALTH, PLAYER_SCALE, PLAYER_SPAWN_POS};
-use crate::common::sprite::AnimationTimer;
+use crate::{common::sprite::AnimationTimer, GameState};
 
 pub struct PlayerSpawnPlugin;
 impl Plugin for PlayerSpawnPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_player).add_systems(Update, set_velocity_to_zero);
+        app.add_systems(Startup, spawn_player)
+            .add_systems(Update, set_velocity_to_zero.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, despawn_player.run_if(in_state(GameState::Playing)));
     }
 }
 
@@ -62,4 +63,19 @@ pub fn spawn_player(
         .entity(player)
         .insert(Player::new(collider))
         .push_children(&[collider]);
+}
+
+fn despawn_player(
+    mut commands: Commands,
+    q_player: Query<(Entity, &Health), With<Player>>,
+    mut game_next_state: ResMut<NextState<GameState>>,
+) {
+    let (player_entity, health) = q_player.single();
+
+    if health.health <= 0. {
+        println!("Player died!");
+        commands.entity(player_entity).despawn_recursive();
+        game_next_state.set(GameState::GameOver);
+    }
+
 }

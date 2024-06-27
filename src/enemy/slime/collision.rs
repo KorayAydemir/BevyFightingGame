@@ -1,15 +1,15 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::player::{spells::PlayerMeleeHitbox, Player};
+use crate::{player::{spells::PlayerMeleeHitbox, Player}, GameState};
 
 use super::Slime;
 
 pub struct SlimeCollisionPlugin;
 impl Plugin for SlimeCollisionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, player_collision)
-            .add_systems(Update, player_melee_collisions);
+        app.add_systems(Update, player_collision.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, player_melee_collisions.run_if(in_state(GameState::Playing)));
     }
 }
 

@@ -8,6 +8,8 @@ use bevy_hanabi::{
     SetVelocitySphereModifier, ShapeDimension, SizeOverLifetimeModifier, Spawner,
 };
 
+use crate::GameState;
+
 use super::{state::PlayerState, Player};
 
 pub struct PlayerSpellsPlugin;
@@ -17,8 +19,8 @@ impl Plugin for PlayerSpellsPlugin {
             .insert_resource(CastingTimers(HashMap::default()))
             .add_systems(Update, update_cooldown_timers)
             .add_systems(Update, update_casting_timers)
-            .add_systems(Update, cast_spray_fire)
-            .add_systems(Update, melee_attack);
+            .add_systems(Update, cast_spray_fire.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, melee_attack.run_if(in_state(GameState::Playing)));
     }
 }
 
@@ -165,21 +167,21 @@ fn create_spray_fire_effect(effects: &mut ResMut<Assets<EffectAsset>>) -> Handle
     let mut color_gradient = Gradient::new();
     color_gradient.add_key(0.0, Vec4::splat(1.0));
     color_gradient.add_key(0.1, Vec4::new(1.0, 1.0, 0.0, 1.0));
-    color_gradient.add_key(0.4, Vec4::new(1.0, 0.0, 0.0, 1.0));
+    color_gradient.add_key(0.2, Vec4::new(1.0, 0.0, 0.0, 1.0));
     color_gradient.add_key(1.0, Vec4::splat(0.0));
 
     let mut size_gradient = Gradient::new();
-    size_gradient.add_key(0.0, Vec2::splat(0.1));
-    size_gradient.add_key(0.5, Vec2::splat(0.5));
-    size_gradient.add_key(0.8, Vec2::splat(0.08));
-    size_gradient.add_key(1.0, Vec2::splat(0.0));
+    size_gradient.add_key(0.2, Vec2::splat(2.5));
+    size_gradient.add_key(0.4, Vec2::splat(2.0));
+    size_gradient.add_key(0.7, Vec2::splat(1.0));
+    size_gradient.add_key(1.0, Vec2::splat(0.5));
 
     let writer = ExprWriter::new();
 
     let age = writer.lit(0.).expr();
     let init_age = SetAttributeModifier::new(Attribute::AGE, age);
 
-    let lifetime = writer.lit(1.5).expr();
+    let lifetime = writer.lit(1.8).expr();
     let init_lifetime = SetAttributeModifier::new(Attribute::LIFETIME, lifetime);
 
     // Add constant downward acceleration to simulate gravity
@@ -264,8 +266,8 @@ fn cast_spray_fire(
             Name::new("emit:rate"),
             ParticleEffectBundle {
                 effect: ParticleEffect::new(effect),
-                transform: Transform::from_translation(Vec3::new(30., 0., 0.))
-                    .with_rotation(Quat::from_rotation_z(1.)),
+                transform: Transform::from_translation(Vec3::new(0., 0., 0.))
+                    .with_rotation(Quat::from_rotation_z(1.2)),
                 ..Default::default()
             },
         ))
@@ -273,3 +275,5 @@ fn cast_spray_fire(
     let (player_id, _player) = q_player.get_single_mut().unwrap();
     commands.entity(player_id).push_children(&[fire_effect]);
 }
+
+

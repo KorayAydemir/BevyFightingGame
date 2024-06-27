@@ -28,6 +28,13 @@ mod player;
 mod ui;
 mod world;
 
+#[derive(States, Clone, Eq, PartialEq, Debug, Hash, Default)]
+pub enum GameState {
+    #[default]
+    Playing,
+    GameOver
+}
+
 fn main() {
     env::set_var("RUST_BACKTRACE", "1");
 
@@ -68,6 +75,8 @@ fn main() {
         .add_plugins(common::CommonPlugin)
         .add_plugins(ui::UiPlugin)
         .add_systems(Startup, spawn_perfui)
+
+        .init_state::<GameState>()
         .run();
 }
 

@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use crate::GameState;
+
 use super::{
     input::{Direction, PlayerInput},
     spells::{CastingTimers, CooldownTimers, PlayerMeleeHitbox, Spell},
@@ -9,10 +11,10 @@ pub struct PlayerStatePlugin;
 impl Plugin for PlayerStatePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<PlayerState>()
-            .add_systems(PostUpdate, switch_player_state)
+            .add_systems(PostUpdate, switch_player_state.run_if(in_state(GameState::Playing)))
             .add_systems(
                 PostUpdate,
-                log_player_state_transitions.after(switch_player_state),
+                log_player_state_transitions.after(switch_player_state).run_if(in_state(GameState::Playing)),
             );
     }
 }

@@ -3,12 +3,13 @@ use bevy::{prelude::*, time::Time};
 use super::{input::Horizontal, state::PlayerState, Player};
 use crate::common::sprite::update_spritesheet_indices;
 use crate::common::sprite::AnimationTimer;
+use crate::GameState;
 
 pub struct PlayerSpritePlugin;
 impl Plugin for PlayerSpritePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_indices)
-            .add_systems(Update, flip_sprite);
+        app.add_systems(Update, update_indices.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, flip_sprite.run_if(in_state(GameState::Playing)));
     }
 }
 

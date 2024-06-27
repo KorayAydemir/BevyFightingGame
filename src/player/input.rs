@@ -1,14 +1,16 @@
 use bevy::prelude::*;
 
+use crate::GameState;
+
 use super::spells::Spell;
 
 pub struct PlayerInputPlugin;
 impl Plugin for PlayerInputPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<PlayerInput>()
-            .add_systems(Update, player_movement)
-            .add_systems(Update, use_spray_fire)
-            .add_systems(Update, use_melee);
+            .add_systems(Update, player_movement.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, use_spray_fire.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, use_melee.run_if(in_state(GameState::Playing)));
     }
 }
 
