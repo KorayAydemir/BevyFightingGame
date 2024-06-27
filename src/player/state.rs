@@ -75,7 +75,7 @@ fn switch_player_state(
         PlayerState::CastingSpell(spell) => {
             match spell {
                 Spell::SprayFire => {}
-                Spell::BlastWave => todo!(),
+                Spell::BlazingSword => {},
                 Spell::Melee => {}
             }
 

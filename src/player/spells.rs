@@ -20,18 +20,19 @@ impl Plugin for PlayerSpellsPlugin {
             .add_systems(Update, update_cooldown_timers)
             .add_systems(Update, update_casting_timers)
             .add_systems(Update, cast_spray_fire.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, melee_attack.run_if(in_state(GameState::Playing)));
+            .add_systems(Update, melee_attack.run_if(in_state(GameState::Playing)))
+            .add_systems(Update, cast_blazing_sword.run_if(in_state(GameState::Playing)));
     }
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
 pub enum Spell {
     SprayFire,
-    BlastWave,
+    BlazingSword,
     Melee,
 }
 impl Spell {
-    pub const VALUES: [Self; 3] = [Self::SprayFire, Self::BlastWave, Self::Melee];
+    pub const VALUES: [Self; 3] = [Self::SprayFire, Self::BlazingSword, Self::Melee];
 }
 
 impl Spell {
@@ -43,7 +44,7 @@ impl Spell {
                 mana_cost: 10,
                 ui_icon: "skill_icons/FireMage_17.png",
             },
-            Spell::BlastWave => SpellDetails {
+            Spell::BlazingSword => SpellDetails {
                 cast_time: 2,
                 cooldown: 2,
                 mana_cost: 10,
@@ -277,3 +278,55 @@ fn cast_spray_fire(
 }
 
 
+fn cast_blazing_sword(
+    mut commands: Commands,
+    mut effects: ResMut<Assets<EffectAsset>>,
+    mut q_player: Query<(Entity, &mut Player)>,
+    player_state: Res<State<PlayerState>>,
+    mut timers: ResMut<CooldownTimers>,
+) {
+    if !player_state.is_changed() {
+        return;
+    }
+
+    let player_state = player_state.get();
+
+    if *player_state != PlayerState::CastingSpell(Spell::BlazingSword) {
+        return;
+    }
+
+    let spray_fire_timer = timers.0.get_mut(&Spell::BlazingSword);
+
+    if let Some(timer) = spray_fire_timer {
+        if timer.finished() {
+            let cooldown_duration =
+                Duration::from_secs(u64::from(Spell::BlazingSword.details().cooldown));
+            timer.set_duration(cooldown_duration);
+            timer.reset();
+        } else {
+            return;
+        }
+    } else {
+        let cooldown_duration = Duration::from_secs(u64::from(Spell::BlazingSword.details().cooldown));
+
+        timers.0.insert(
+            Spell::BlazingSword,
+            Timer::new(cooldown_duration, TimerMode::Once),
+        );
+    };
+
+    let effect = create_spray_fire_effect(&mut effects);
+    let fire_effect = commands
+        .spawn((
+            Name::new("emit:rate"),
+            ParticleEffectBundle {
+                effect: ParticleEffect::new(effect),
+                transform: Transform::from_translation(Vec3::new(0., 0., 0.))
+                    .with_rotation(Quat::from_rotation_z(-1.2)),
+                ..Default::default()
+            },
+        ))
+        .id();
+    let (player_id, _player) = q_player.get_single_mut().unwrap();
+    commands.entity(player_id).push_children(&[fire_effect]);
+}

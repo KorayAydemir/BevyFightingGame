@@ -1,16 +1,14 @@
 use bevy::prelude::*;
 
-use crate::GameState;
-
 use super::spells::Spell;
 
 pub struct PlayerInputPlugin;
 impl Plugin for PlayerInputPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<PlayerInput>()
-            .add_systems(Update, player_movement.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, use_spray_fire.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, use_melee.run_if(in_state(GameState::Playing)));
+            .add_systems(Update, player_movement)
+            .add_systems(Update, use_melee)
+            .add_systems(Update, use_spell);
     }
 }
 
@@ -66,14 +64,16 @@ fn player_movement(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<Pla
     }
 }
 
-fn use_spray_fire(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
-    if keys.just_pressed(KeyCode::KeyC) {
+fn use_melee(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
+    player_input.use_melee = keys.just_pressed(KeyCode::Space);
+}
+
+fn use_spell(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
+    if keys.just_pressed(KeyCode::KeyV) {
+        player_input.use_spell = Some(Spell::BlazingSword);
+    } else if keys.just_pressed(KeyCode::KeyC) {
         player_input.use_spell = Some(Spell::SprayFire);
     } else {
         player_input.use_spell = None;
     }
-}
-
-fn use_melee(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
-    player_input.use_melee = keys.just_pressed(KeyCode::Space);
 }

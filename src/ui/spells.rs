@@ -26,8 +26,8 @@ fn update_cooldown_box(
                     Val::Percent(0.)
                 }
             }
-            Spell::BlastWave => {
-                if let Some(timer) = cooldown_timers.0.get(&Spell::BlastWave) {
+            Spell::BlazingSword => {
+                if let Some(timer) = cooldown_timers.0.get(&Spell::BlazingSword) {
                     Val::Percent(timer.remaining_secs() * (100. / timer.duration().as_secs_f32() ))
                 } else {
                     Val::Percent(0.)
