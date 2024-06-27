@@ -8,8 +8,8 @@ mod sprite;
 mod state;
 pub mod collision;
 
-pub const PLAYER_SPAWN_POS: Vec3 = Vec3::new(-200., 0., 0.);
-pub const PLAYER_SCALE: Vec3 = Vec3::splat(1.);
+pub const PLAYER_SPAWN_POS: Vec3 = Vec3::new(150., 150., 0.);
+pub const PLAYER_SCALE: Vec3 = Vec3::splat(0.8);
 pub const PLAYER_MAX_HEALTH: f32 = 3.;
 
 pub struct PlayerPlugin;

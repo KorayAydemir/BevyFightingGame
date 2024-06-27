@@ -7,11 +7,17 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.13.1", features = ["dynamic_linking"] }
+# Use unstable version for Bevy 0.13 support
+bevy_ecs_ldtk = { git = "https://github.com/Trouv/bevy_ecs_ldtk.git" }
 bevy_hanabi = { version = "0.11", default-features = true }
 bevy_math = "0.13.2"
 bevy_rapier2d = "0.26.0"
 iyes_perf_ui = "0.2.3"
 rand = "0.8.5"
+
+[patch.crates-io]
+# Patch unstable version to resolve conflicting dependencies from bevy_ecs_ldtk
+bevy_ecs_tilemap = { git = "https://github.com/StarArawn/bevy_ecs_tilemap" }
 
 [profile.dev]
 opt-level = 1

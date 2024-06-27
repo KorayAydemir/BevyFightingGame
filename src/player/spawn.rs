@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use bevy_ecs_ldtk::prelude::*;
 
 use super::{Health, Player, PLAYER_MAX_HEALTH, PLAYER_SCALE, PLAYER_SPAWN_POS};
 use crate::common::sprite::AnimationTimer;
@@ -7,8 +8,13 @@ use crate::common::sprite::AnimationTimer;
 pub struct PlayerSpawnPlugin;
 impl Plugin for PlayerSpawnPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, spawn_player);
+        app.add_systems(Startup, spawn_player).add_systems(Update, set_velocity_to_zero);
     }
+}
+
+fn set_velocity_to_zero(mut q_player: Query<&mut Velocity, With<Player>>) {
+    let mut player_velocity = q_player.single_mut();
+    player_velocity.linvel = Vec2::ZERO;
 }
 
 pub fn spawn_player(
@@ -23,7 +29,9 @@ pub fn spawn_player(
 
     let player = commands
         .spawn((
-            RigidBody::KinematicPositionBased,
+            //RigidBody::KinematicPositionBased,
+            RigidBody::Dynamic,
+            Velocity::zero(),
             LockedAxes::ROTATION_LOCKED,
             SpriteSheetBundle {
                 transform: Transform::from_translation(PLAYER_SPAWN_POS).with_scale(PLAYER_SCALE),

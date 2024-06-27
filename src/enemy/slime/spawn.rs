@@ -30,7 +30,8 @@ fn spawn_slimes<const SLIME_AMOUNT: usize>(
         let slime_scale = Vec3::splat(random_slime_scale);
 
         let slime = commands.spawn((
-            RigidBody::KinematicPositionBased,
+            //RigidBody::KinematicPositionBased,
+            RigidBody::Dynamic,
             SpriteSheetBundle {
                 transform: Transform::from_translation(slime_spawn_pos).with_scale(slime_scale),
                 texture: asset_server.load("textures/mobs/slime-blue.png"),

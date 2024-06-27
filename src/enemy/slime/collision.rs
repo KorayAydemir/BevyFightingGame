@@ -84,6 +84,6 @@ fn player_melee_collisions(
             continue;
         };
 
-        commands.entity(**enemy_parent).despawn();
+        commands.entity(**enemy_parent).despawn_recursive();
     }
 }

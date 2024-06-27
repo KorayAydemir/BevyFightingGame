@@ -22,6 +22,41 @@ impl Plugin for PlayerSpellsPlugin {
     }
 }
 
+#[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
+pub enum Spell {
+    SprayFire,
+    BlastWave,
+    Melee,
+}
+impl Spell {
+    pub const VALUES: [Self; 3] = [Self::SprayFire, Self::BlastWave, Self::Melee];
+}
+
+impl Spell {
+    pub fn details(self) -> SpellDetails<'static> {
+        match self {
+            Spell::SprayFire => SpellDetails {
+                cast_time: 1,
+                cooldown: 1,
+                mana_cost: 10,
+                ui_icon: "skill_icons/FireMage_17.png",
+            },
+            Spell::BlastWave => SpellDetails {
+                cast_time: 2,
+                cooldown: 2,
+                mana_cost: 10,
+                ui_icon: "skill_icons/FireMage_20.png",
+            },
+            Spell::Melee => SpellDetails {
+                cast_time: 1,
+                cooldown: 3,
+                mana_cost: 0,
+                ui_icon: "skill_icons/FireMage_29.png",
+            },
+        }
+    }
+}
+
 fn melee_attack(
     mut commands: Commands,
     player_state: Res<State<PlayerState>>,
@@ -106,41 +141,6 @@ pub struct SpellDetails<'a> {
     pub cooldown: u32,
     pub mana_cost: u32,
     pub ui_icon: &'a str,
-}
-
-#[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
-pub enum Spell {
-    SprayFire,
-    BlastWave,
-    Melee,
-}
-impl Spell {
-    pub const VALUES: [Self; 3] = [Self::SprayFire, Self::BlastWave, Self::Melee];
-}
-
-impl Spell {
-    pub fn details(self) -> SpellDetails<'static> {
-        match self {
-            Spell::SprayFire => SpellDetails {
-                cast_time: 1,
-                cooldown: 2,
-                mana_cost: 10,
-                ui_icon: "skill_icons/FireMage_17.png",
-            },
-            Spell::BlastWave => SpellDetails {
-                cast_time: 2,
-                cooldown: 2,
-                mana_cost: 10,
-                ui_icon: "skill_icons/FireMage_20.png",
-            },
-            Spell::Melee => SpellDetails {
-                cast_time: 1,
-                cooldown: 3,
-                mana_cost: 0,
-                ui_icon: "skill_icons/FireMage_29.png",
-            },
-        }
-    }
 }
 
 #[derive(Resource)]

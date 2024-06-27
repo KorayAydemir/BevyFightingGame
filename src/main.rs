@@ -7,12 +7,6 @@
     clippy::needless_pass_by_value
 )]
 
-mod common;
-mod enemy;
-mod player;
-mod ui;
-mod world;
-
 use std::env;
 
 use bevy::{
@@ -28,7 +22,11 @@ use bevy_rapier2d::{
 };
 use iyes_perf_ui::{PerfUiCompleteBundle, PerfUiPlugin};
 
-// TODO: make player melee hitbox appear a bit after player presses space (when sword goes out on animation)
+mod common;
+mod enemy;
+mod player;
+mod ui;
+mod world;
 
 fn main() {
     env::set_var("RUST_BACKTRACE", "1");
@@ -46,7 +44,7 @@ fn main() {
                     primary_window: Some(Window {
                         present_mode: PresentMode::Fifo,
                         mode: WindowMode::Windowed,
-                        resolution: WindowResolution::new(820., 560.),
+                        resolution: WindowResolution::new(1280., 720.),
                         ..default()
                     }),
                     ..default()
@@ -59,12 +57,11 @@ fn main() {
         .insert_resource(Msaa::Off)
         .add_plugins((
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0),
-            RapierDebugRenderPlugin::default(),
+            //RapierDebugRenderPlugin::default(),
         ))
         .add_plugins(PerfUiPlugin)
         .add_plugins(HanabiPlugin)
         .add_plugins(FrameTimeDiagnosticsPlugin)
-
         .add_plugins(world::WorldPlugin)
         .add_plugins(player::PlayerPlugin)
         .add_plugins(enemy::EnemyPlugin)

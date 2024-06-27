@@ -21,21 +21,21 @@ fn update_cooldown_box(
         style.height = match spell {
             Spell::SprayFire => {
                 if let Some(timer) = cooldown_timers.0.get(&Spell::SprayFire) {
-                    Val::Percent(timer.remaining_secs() * 50.)
+                    Val::Percent(timer.remaining_secs() * (100. / timer.duration().as_secs_f32() ))
                 } else {
                     Val::Percent(0.)
                 }
             }
             Spell::BlastWave => {
                 if let Some(timer) = cooldown_timers.0.get(&Spell::BlastWave) {
-                    Val::Percent(timer.remaining_secs() * 50.)
+                    Val::Percent(timer.remaining_secs() * (100. / timer.duration().as_secs_f32() ))
                 } else {
                     Val::Percent(0.)
                 }
             }
             Spell::Melee => {
                 if let Some(timer) = cooldown_timers.0.get(&Spell::Melee) {
-                    Val::Percent(timer.remaining_secs() * (100. / timer.remaining_secs()))
+                    Val::Percent(timer.remaining_secs() * (100. / timer.duration().as_secs_f32() ))
                 } else {
                     Val::Percent(0.)
                 }
