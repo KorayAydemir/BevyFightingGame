@@ -21,18 +21,20 @@ use bevy_rapier2d::{
     render::RapierDebugRenderPlugin,
 };
 use iyes_perf_ui::{PerfUiCompleteBundle, PerfUiPlugin};
+use player::spells::PlayerSpellsSet;
 
 mod common;
 mod enemy;
 mod player;
 mod ui;
 mod world;
+mod neutral;
 
 #[derive(States, Clone, Eq, PartialEq, Debug, Hash, Default)]
 pub enum GameState {
     #[default]
     Playing,
-    GameOver
+    GameOver,
 }
 
 fn main() {
@@ -64,18 +66,24 @@ fn main() {
         .insert_resource(Msaa::Off)
         .add_plugins((
             RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0),
-            //RapierDebugRenderPlugin::default(),
+            RapierDebugRenderPlugin::default(),
         ))
         .add_plugins(PerfUiPlugin)
         .add_plugins(HanabiPlugin)
         .add_plugins(FrameTimeDiagnosticsPlugin)
+        .add_systems(Startup, spawn_perfui)
+
         .add_plugins(world::WorldPlugin)
         .add_plugins(player::PlayerPlugin)
         .add_plugins(enemy::EnemyPlugin)
         .add_plugins(common::CommonPlugin)
         .add_plugins(ui::UiPlugin)
-        .add_systems(Startup, spawn_perfui)
+        .add_plugins(neutral::NeutralPlugin)
 
+        //.configure_sets(
+        //    Update,
+        //    PlayerSpellsSet.run_if(in_state(GameState::GameOver)),
+        //)
         .init_state::<GameState>()
         .run();
 }

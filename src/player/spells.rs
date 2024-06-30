@@ -12,16 +12,25 @@ use crate::GameState;
 
 use super::{state::PlayerState, Player};
 
+#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct PlayerSpellsSet;
+
 pub struct PlayerSpellsPlugin;
 impl Plugin for PlayerSpellsPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(CooldownTimers(HashMap::default()))
             .insert_resource(CastingTimers(HashMap::default()))
-            .add_systems(Update, update_cooldown_timers)
-            .add_systems(Update, update_casting_timers)
-            .add_systems(Update, cast_spray_fire.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, melee_attack.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, cast_blazing_sword.run_if(in_state(GameState::Playing)));
+            .add_systems(
+                Update,
+                (
+                    update_cooldown_timers,
+                    update_casting_timers,
+                    cast_spray_fire,
+                    melee_attack,
+                    cast_blazing_sword,
+                )
+                    .in_set(PlayerSpellsSet),
+            );
     }
 }
 
@@ -277,7 +286,6 @@ fn cast_spray_fire(
     commands.entity(player_id).push_children(&[fire_effect]);
 }
 
-
 fn cast_blazing_sword(
     mut commands: Commands,
     mut effects: ResMut<Assets<EffectAsset>>,
@@ -285,6 +293,7 @@ fn cast_blazing_sword(
     player_state: Res<State<PlayerState>>,
     mut timers: ResMut<CooldownTimers>,
 ) {
+    println!("spell systems run");
     if !player_state.is_changed() {
         return;
     }
@@ -307,7 +316,8 @@ fn cast_blazing_sword(
             return;
         }
     } else {
-        let cooldown_duration = Duration::from_secs(u64::from(Spell::BlazingSword.details().cooldown));
+        let cooldown_duration =
+            Duration::from_secs(u64::from(Spell::BlazingSword.details().cooldown));
 
         timers.0.insert(
             Spell::BlazingSword,

@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use super::spells::Spell;
+use crate::common::movement::{Direction, Vertical, Horizontal};
 
 pub struct PlayerInputPlugin;
 impl Plugin for PlayerInputPlugin {
@@ -12,29 +13,11 @@ impl Plugin for PlayerInputPlugin {
     }
 }
 
-#[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
-pub enum Horizontal {
-    Left,
-    Right,
-}
-
-#[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
-pub enum Vertical {
-    Up,
-    Down,
-}
-
 #[derive(Resource, Default)]
 pub struct PlayerInput {
     pub move_direction: Option<Direction>,
     pub use_spell: Option<Spell>,
     pub use_melee: bool,
-}
-
-#[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
-pub struct Direction {
-    pub vertical: Option<Vertical>,
-    pub horizontal: Option<Horizontal>,
 }
 
 fn player_movement(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {

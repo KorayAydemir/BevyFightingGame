@@ -7,8 +7,8 @@ use bevy_rapier2d::prelude::*;
 pub struct HealthUiPlugin;
 impl Plugin for HealthUiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, update_hearts.run_if(in_state(GameState::Playing)).after(spawn_player));
-        app.add_systems(Update, update_hearts.run_if(in_state(GameState::Playing)).run_if(run_if_player_got_hit));
+        app.add_systems(Startup, update_hearts.after(spawn_player));
+        app.add_systems(Update, update_hearts.run_if(run_if_player_got_hit));
     }
 }
 

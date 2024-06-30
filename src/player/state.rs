@@ -1,20 +1,20 @@
 use bevy::prelude::*;
 
-use crate::GameState;
-
 use super::{
-    input::{Direction, PlayerInput},
+    input::PlayerInput,
     spells::{CastingTimers, CooldownTimers, PlayerMeleeHitbox, Spell},
 };
+
+use crate::{common::movement::Direction, impl_can_move};
 
 pub struct PlayerStatePlugin;
 impl Plugin for PlayerStatePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<PlayerState>()
-            .add_systems(PostUpdate, switch_player_state.run_if(in_state(GameState::Playing)))
+            .add_systems(PostUpdate, switch_player_state)
             .add_systems(
                 PostUpdate,
-                log_player_state_transitions.after(switch_player_state).run_if(in_state(GameState::Playing)),
+                log_player_state_transitions.after(switch_player_state),
             );
     }
 }
@@ -27,6 +27,7 @@ pub enum PlayerState {
     CastingSpell(Spell),
     Melee,
 }
+impl_can_move!(PlayerState);
 
 fn switch_player_state(
     player_state: Res<State<PlayerState>>,

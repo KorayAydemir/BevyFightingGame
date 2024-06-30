@@ -9,7 +9,7 @@ const BASE_SPEED: f32 = 50.;
 pub struct SlimeMovementPlugin;
 impl Plugin for SlimeMovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, movement.run_if(in_state(GameState::Playing)));
+        app.add_systems(Update, movement);
     }
 }
 

@@ -8,8 +8,9 @@ pub struct PlayerSpawnPlugin;
 impl Plugin for PlayerSpawnPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_player)
-            .add_systems(Update, set_velocity_to_zero.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, despawn_player.run_if(in_state(GameState::Playing)));
+            .add_systems(Update, set_velocity_to_zero)
+            .add_systems(Update, player_death)
+            .add_systems(Update, despawn_player);
     }
 }
 
@@ -65,17 +66,25 @@ pub fn spawn_player(
         .push_children(&[collider]);
 }
 
-fn despawn_player(
-    mut commands: Commands,
+fn player_death(
     q_player: Query<(Entity, &Health), With<Player>>,
     mut game_next_state: ResMut<NextState<GameState>>,
 ) {
     let (player_entity, health) = q_player.single();
 
-    if health.health <= 0. {
+    if health.health <= 2. {
         println!("Player died!");
-        commands.entity(player_entity).despawn_recursive();
         game_next_state.set(GameState::GameOver);
     }
+}
 
+fn despawn_player(
+    mut commands: Commands,
+    res_game_state: Res<State<GameState>>,
+    q_player: Query<Entity, With<Player>>,
+) {
+    let player_entity = q_player.single();
+    if res_game_state.is_changed() && *res_game_state.get() == GameState::GameOver {
+        //commands.entity(player_entity).despawn_recursive();
+    }
 }

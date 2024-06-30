@@ -8,8 +8,8 @@ use super::Slime;
 pub struct SlimeCollisionPlugin;
 impl Plugin for SlimeCollisionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, player_collision.run_if(in_state(GameState::Playing)))
-            .add_systems(Update, player_melee_collisions.run_if(in_state(GameState::Playing)));
+        app.add_systems(Update, player_collision)
+            .add_systems(Update, player_melee_collisions);
     }
 }
 

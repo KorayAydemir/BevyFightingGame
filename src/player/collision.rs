@@ -1,12 +1,12 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::{enemy::Enemy, player::{Health, Player}, GameState};
+use crate::{enemy::Enemy, player::{Health, Player}};
 
 pub struct PlayerCollisionPlugin;
 impl Plugin for PlayerCollisionPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, slime_collision.run_if(in_state(GameState::Playing)));
+        app.add_systems(Update, slime_collision);
     }
 }
 
