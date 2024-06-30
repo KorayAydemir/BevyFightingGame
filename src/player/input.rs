@@ -1,15 +1,15 @@
 use bevy::prelude::*;
 
-use super::spells::Spell;
-use crate::common::movement::{Direction, Vertical, Horizontal};
+use super::{spells::Spell, PlayerSet};
+use crate::common::movement::{Direction, Horizontal, Vertical};
 
 pub struct PlayerInputPlugin;
 impl Plugin for PlayerInputPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<PlayerInput>()
-            .add_systems(Update, player_movement)
-            .add_systems(Update, use_melee)
-            .add_systems(Update, use_spell);
+        app.init_resource::<PlayerInput>().add_systems(
+            Update,
+            (player_movement, use_melee, use_spell).in_set(PlayerSet),
+        );
     }
 }
 

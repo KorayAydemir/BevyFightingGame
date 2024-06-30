@@ -31,6 +31,7 @@ fn spawn_slimes<const SLIME_AMOUNT: usize>(
 
         let slime = commands.spawn((
             //RigidBody::KinematicPositionBased,
+            Name::new(format!("Slime {i}")),
             RigidBody::Dynamic,
             SpriteSheetBundle {
                 transform: Transform::from_translation(slime_spawn_pos).with_scale(slime_scale),

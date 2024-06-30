@@ -5,7 +5,7 @@ use super::{
     spells::{CastingTimers, CooldownTimers, PlayerMeleeHitbox, Spell},
 };
 
-use crate::{common::movement::Direction, impl_can_move};
+use crate::{common::movement::Direction, impl_can_move, GameState};
 
 pub struct PlayerStatePlugin;
 impl Plugin for PlayerStatePlugin {
@@ -26,17 +26,19 @@ pub enum PlayerState {
     Moving(Direction),
     CastingSpell(Spell),
     Melee,
+    Dead,
 }
 impl_can_move!(PlayerState);
 
 fn switch_player_state(
+    mut commands: Commands,
     player_state: Res<State<PlayerState>>,
     mut player_next_state: ResMut<NextState<PlayerState>>,
     player_input: Res<PlayerInput>,
     casting_timers: Res<CastingTimers>,
     cd_timers: Res<CooldownTimers>,
     q_entity_melee_hitbox: Query<Entity, With<PlayerMeleeHitbox>>,
-    mut commands: Commands,
+    mut next_game_state: ResMut<NextState<GameState>>,
 ) {
     let player_state = player_state.get();
 
@@ -76,7 +78,7 @@ fn switch_player_state(
         PlayerState::CastingSpell(spell) => {
             match spell {
                 Spell::SprayFire => {}
-                Spell::BlazingSword => {},
+                Spell::BlazingSword => {}
                 Spell::Melee => {}
             }
 
@@ -104,6 +106,9 @@ fn switch_player_state(
             } else {
                 player_next_state.set(PlayerState::Idling);
             }
+        }
+        PlayerState::Dead => {
+            next_game_state.set(GameState::GameOver);
         }
     }
 }

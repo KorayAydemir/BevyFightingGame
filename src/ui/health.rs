@@ -74,7 +74,6 @@ fn update_hearts(
     ui_hearts: Query<Entity, With<UiHearts>>,
 ) {
     let health = q_player_health.single().health;
-    println!("update hearts with hp: {health}");
 
     if let Ok(ui_hearts) = ui_hearts.get_single() {
         commands.entity(ui_hearts).despawn_recursive();

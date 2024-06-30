@@ -10,18 +10,16 @@
 use std::env;
 
 use bevy::{
-    diagnostic::FrameTimeDiagnosticsPlugin,
-    prelude::*,
-    render::{render_resource::WgpuFeatures, settings::WgpuSettings, RenderPlugin},
-    window::{PresentMode, WindowMode, WindowResolution},
+    diagnostic::FrameTimeDiagnosticsPlugin, input::common_conditions::input_toggle_active, prelude::*, render::{render_resource::WgpuFeatures, settings::WgpuSettings, RenderPlugin}, window::{PresentMode, WindowMode, WindowResolution}
 };
 use bevy_hanabi::HanabiPlugin;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier2d::{
     plugin::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
 use iyes_perf_ui::{PerfUiCompleteBundle, PerfUiPlugin};
-use player::spells::PlayerSpellsSet;
+use player::{spells::PlayerSpellsSet, PlayerSet};
 
 mod common;
 mod enemy;
@@ -71,7 +69,10 @@ fn main() {
         .add_plugins(PerfUiPlugin)
         .add_plugins(HanabiPlugin)
         .add_plugins(FrameTimeDiagnosticsPlugin)
+        .add_plugins(WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::F10)))
         .add_systems(Startup, spawn_perfui)
+
+        .init_state::<GameState>()
 
         .add_plugins(world::WorldPlugin)
         .add_plugins(player::PlayerPlugin)
@@ -80,11 +81,11 @@ fn main() {
         .add_plugins(ui::UiPlugin)
         .add_plugins(neutral::NeutralPlugin)
 
-        //.configure_sets(
-        //    Update,
-        //    PlayerSpellsSet.run_if(in_state(GameState::GameOver)),
-        //)
-        .init_state::<GameState>()
+        .configure_sets(
+            Update,
+            PlayerSet.run_if(in_state(GameState::Playing)),
+        )
+
         .run();
 }
 

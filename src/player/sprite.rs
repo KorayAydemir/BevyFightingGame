@@ -1,15 +1,15 @@
 use bevy::{prelude::*, time::Time};
 
-use crate::common::sprite::flip_sprite;
+use super::PlayerSet;
 use super::{state::PlayerState, Player};
+use crate::common::sprite::flip_sprite;
 use crate::common::sprite::update_spritesheet_indices;
 use crate::common::sprite::AnimationTimer;
 
 pub struct PlayerSpritePlugin;
 impl Plugin for PlayerSpritePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, update_indices)
-            .add_systems(Update, flip_sprite::<Player, PlayerState>);
+        app.add_systems(Update, (update_indices, flip_sprite::<Player, PlayerState>).in_set(PlayerSet));
     }
 }
 
@@ -19,6 +19,7 @@ fn player_sprite_indicies(state: &PlayerState) -> (usize, usize) {
         PlayerState::Moving(_) => (0, 7),
         PlayerState::CastingSpell(_) => (15, 18),
         PlayerState::Melee => (16, 19),
+        PlayerState::Dead => (0, 0),
     }
 }
 

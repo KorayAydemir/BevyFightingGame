@@ -2,14 +2,14 @@ use bevy::prelude::*;
 
 use crate::common::movement::{Horizontal, Vertical};
 use super::state::PlayerState;
-use super::Player;
+use super::{Player, PlayerSet};
 
 const BASE_SPEED: f32 = 200.;
 
 pub struct PlayerMovementPlugin;
 impl Plugin for PlayerMovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, player_movement);
+        app.add_systems(Update, player_movement.in_set(PlayerSet));
     }
 }
 

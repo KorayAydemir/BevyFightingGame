@@ -8,9 +8,7 @@ use bevy_hanabi::{
     SetVelocitySphereModifier, ShapeDimension, SizeOverLifetimeModifier, Spawner,
 };
 
-use crate::GameState;
-
-use super::{state::PlayerState, Player};
+use super::{state::PlayerState, Player, PlayerSet};
 
 #[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct PlayerSpellsSet;
@@ -29,7 +27,7 @@ impl Plugin for PlayerSpellsPlugin {
                     melee_attack,
                     cast_blazing_sword,
                 )
-                    .in_set(PlayerSpellsSet),
+                    .in_set(PlayerSpellsSet).in_set(PlayerSet),
             );
     }
 }
@@ -293,7 +291,6 @@ fn cast_blazing_sword(
     player_state: Res<State<PlayerState>>,
     mut timers: ResMut<CooldownTimers>,
 ) {
-    println!("spell systems run");
     if !player_state.is_changed() {
         return;
     }

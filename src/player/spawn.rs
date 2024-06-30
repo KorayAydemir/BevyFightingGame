@@ -1,22 +1,18 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use super::{Health, Player, PLAYER_MAX_HEALTH, PLAYER_SCALE, PLAYER_SPAWN_POS};
+use super::{
+    state::PlayerState, Health, Player, PlayerSet, PLAYER_MAX_HEALTH, PLAYER_SCALE,
+    PLAYER_SPAWN_POS,
+};
 use crate::{common::sprite::AnimationTimer, GameState};
 
 pub struct PlayerSpawnPlugin;
 impl Plugin for PlayerSpawnPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, spawn_player)
-            .add_systems(Update, set_velocity_to_zero)
-            .add_systems(Update, player_death)
-            .add_systems(Update, despawn_player);
+            .add_systems(Update, player_death.in_set(PlayerSet));
     }
-}
-
-fn set_velocity_to_zero(mut q_player: Query<&mut Velocity, With<Player>>) {
-    let mut player_velocity = q_player.single_mut();
-    player_velocity.linvel = Vec2::ZERO;
 }
 
 pub fn spawn_player(
@@ -32,6 +28,7 @@ pub fn spawn_player(
     let player = commands
         .spawn((
             //RigidBody::KinematicPositionBased,
+            Name::new("Player"),
             RigidBody::Dynamic,
             Velocity::zero(),
             LockedAxes::ROTATION_LOCKED,
@@ -67,24 +64,16 @@ pub fn spawn_player(
 }
 
 fn player_death(
-    q_player: Query<(Entity, &Health), With<Player>>,
-    mut game_next_state: ResMut<NextState<GameState>>,
-) {
-    let (player_entity, health) = q_player.single();
-
-    if health.health <= 2. {
-        println!("Player died!");
-        game_next_state.set(GameState::GameOver);
-    }
-}
-
-fn despawn_player(
     mut commands: Commands,
-    res_game_state: Res<State<GameState>>,
     q_player: Query<Entity, With<Player>>,
+    player_state: Res<State<PlayerState>>,
+    mut next_game_state: ResMut<NextState<GameState>>,
 ) {
     let player_entity = q_player.single();
-    if res_game_state.is_changed() && *res_game_state.get() == GameState::GameOver {
-        //commands.entity(player_entity).despawn_recursive();
+
+    if let PlayerState::Dead = player_state.get() {
+        println!("player died");
+        //next_game_state.set(GameState::GameOver);
+        //commands.entity(player_entity).despawn();
     }
 }
