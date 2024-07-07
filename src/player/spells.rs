@@ -301,9 +301,9 @@ fn cast_blazing_sword(
         return;
     }
 
-    let spray_fire_timer = timers.0.get_mut(&Spell::BlazingSword);
+    let spell_cd_timer = timers.0.get_mut(&Spell::BlazingSword);
 
-    if let Some(timer) = spray_fire_timer {
+    if let Some(timer) = spell_cd_timer {
         if timer.finished() {
             let cooldown_duration =
                 Duration::from_secs(u64::from(Spell::BlazingSword.details().cooldown));

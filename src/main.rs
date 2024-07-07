@@ -46,7 +46,7 @@ fn main() {
     App::new()
         .add_plugins(
             DefaultPlugins
-                .set(ImagePlugin::default_nearest())
+                .set(ImagePlugin::default_nearest()) // prevents blurry spots
                 .set(WindowPlugin {
                     primary_window: Some(Window {
                         present_mode: PresentMode::Fifo,
@@ -63,7 +63,7 @@ fn main() {
         )
         .insert_resource(Msaa::Off)
         .add_plugins((
-            RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0),
+            RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(16.0),
             RapierDebugRenderPlugin::default(),
         ))
         .add_plugins(PerfUiPlugin)

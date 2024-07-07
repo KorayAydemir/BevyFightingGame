@@ -44,7 +44,10 @@ pub fn slime_collision(
             continue;
         };
 
-        let (enemy_transform, enemy) = q_enemies.get(enemy_parent.get()).unwrap();
+
+        let Ok((enemy_transform, enemy)) = q_enemies.get(enemy_parent.get()) else {
+            return;
+        };
 
         player_events.send(PlayerEvents::GotHit(GotHitInfo {
             damage: enemy.damage,

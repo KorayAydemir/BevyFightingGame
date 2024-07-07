@@ -1,22 +1,29 @@
 use bevy::prelude::*;
+use bevy_rapier2d::dynamics::Velocity;
 
-use crate::common::movement::{Horizontal, Vertical};
 use super::state::PlayerState;
 use super::{Player, PlayerSet};
+use crate::common::movement::{Horizontal, Vertical};
 
 const BASE_SPEED: f32 = 200.;
 
 pub struct PlayerMovementPlugin;
 impl Plugin for PlayerMovementPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, player_movement.in_set(PlayerSet));
+        app.add_systems(Update, player_movement.in_set(PlayerSet))
+            .add_systems(Update, set_velocity_to_zero);
     }
+}
+
+fn set_velocity_to_zero(mut q_player: Query<&mut Velocity, With<Player>>) {
+    let mut player_velocity = q_player.single_mut();
+    player_velocity.linvel = Vec2::ZERO;
 }
 
 fn player_movement(
     mut q_player_transform: Query<&mut Transform, With<Player>>,
     player_state: Res<State<PlayerState>>,
-    time: Res<Time>
+    time: Res<Time>,
 ) {
     let player_state = player_state.get();
 

@@ -12,7 +12,7 @@ impl Plugin for CameraPlugin {
 
 fn spawn_camera(mut commands: Commands) {
     let mut camera = Camera2dBundle {
-        transform: Transform::from_translation(Vec3::new(20.,20.,20.)),
+        transform: Transform::from_translation(Vec3::new(0.,0.,0.)),
         ..default()
     };
     camera.projection.scaling_mode = ScalingMode::FixedVertical(400.0);
