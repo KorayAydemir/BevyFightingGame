@@ -145,6 +145,7 @@ fn spawn_wall_collision(
         // An intgrid tile's direct parent will be a layer entity, not the level entity
         // To get the level entity, you need the tile's grandparent.
         // This is where parent_query comes in.
+
         if let Ok(grandparent) = parent_query.get(parent.get()) {
             level_to_wall_locations
                 .entry(grandparent.get())
