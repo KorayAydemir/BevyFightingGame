@@ -5,6 +5,7 @@ use super::{state::PlayerState, Player};
 use crate::common::sprite::flip_sprite;
 use crate::common::sprite::update_spritesheet_indices;
 use crate::common::sprite::AnimationTimer;
+use crate::player::spells::Spell;
 
 pub struct PlayerSpritePlugin;
 impl Plugin for PlayerSpritePlugin {
@@ -20,8 +21,8 @@ fn player_sprite_indicies(state: &PlayerState) -> (usize, usize) {
     match state {
         PlayerState::Idling => (8, 14),
         PlayerState::Moving(_) => (0, 7),
+        PlayerState::CastingSpell(Spell::Melee) => (16, 19),
         PlayerState::CastingSpell(_) => (15, 18),
-        PlayerState::Melee => (16, 19),
         PlayerState::Dead => (0, 0),
     }
 }

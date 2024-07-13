@@ -8,7 +8,7 @@ impl Plugin for PlayerInputPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<PlayerInput>().add_systems(
             Update,
-            (player_movement, use_melee, use_spell).in_set(PlayerSet),
+            (player_movement, use_spell).in_set(PlayerSet),
         );
     }
 }
@@ -47,15 +47,13 @@ fn player_movement(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<Pla
     }
 }
 
-fn use_melee(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
-    player_input.use_melee = keys.just_pressed(KeyCode::Space);
-}
-
 fn use_spell(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {
     if keys.just_pressed(KeyCode::KeyV) {
         player_input.use_spell = Some(Spell::BlazingSword);
     } else if keys.just_pressed(KeyCode::KeyC) {
         player_input.use_spell = Some(Spell::SprayFire);
+    } else if keys.just_pressed(KeyCode::Space) {
+        player_input.use_spell = Some(Spell::Melee);
     } else {
         player_input.use_spell = None;
     }

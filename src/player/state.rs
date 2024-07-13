@@ -25,7 +25,6 @@ pub enum PlayerState {
     Idling,
     Moving(Direction),
     CastingSpell(Spell),
-    Melee,
     Dead,
 }
 
@@ -50,12 +49,10 @@ fn switch_player_state(
             };
 
             if let Some(spell) = player_input.use_spell {
-                player_next_state.set(PlayerState::CastingSpell(spell));
+                if !is_spell_in_cooldown(spell, &cd_timers) {
+                    player_next_state.set(PlayerState::CastingSpell(spell));
+                }
             };
-
-            if player_input.use_melee && !is_melee_in_cooldown(cd_timers) {
-                player_next_state.set(PlayerState::Melee);
-            }
         }
 
         PlayerState::Moving(_) => {
@@ -64,41 +61,30 @@ fn switch_player_state(
             };
 
             if let Some(spell) = player_input.use_spell {
-                player_next_state.set(PlayerState::CastingSpell(spell));
+                if !is_spell_in_cooldown(spell, &cd_timers) {
+                    player_next_state.set(PlayerState::CastingSpell(spell));
+                }
             };
 
             if player_input.move_direction.is_none() {
                 player_next_state.set(PlayerState::Idling);
             }
-
-            if player_input.use_melee && !is_melee_in_cooldown(cd_timers) {
-                player_next_state.set(PlayerState::Melee);
-            }
         }
 
         PlayerState::CastingSpell(spell) => {
             match spell {
-                Spell::SprayFire => {}
-                Spell::BlazingSword => {}
-                Spell::Melee => {}
-            }
+                Spell::SprayFire | Spell::BlazingSword => {}
+                Spell::Melee => {
+                    if let Some(casting) = casting_timers.0.get(&Spell::Melee) {
+                        if !casting.finished() {
+                            return;
+                        }
 
-            if let Some(direction) = player_input.move_direction {
-                player_next_state.set(PlayerState::Moving(direction));
-            } else {
-                player_next_state.set(PlayerState::Idling);
-            }
-        }
-
-        PlayerState::Melee => {
-            if let Some(casting) = casting_timers.0.get(&Spell::Melee) {
-                if !casting.finished() {
-                    return;
-                }
-
-                if casting.finished() {
-                    let entity_melee_hitbox = q_entity_melee_hitbox.single();
-                    commands.entity(entity_melee_hitbox).despawn();
+                        if casting.finished() {
+                            let entity_melee_hitbox = q_entity_melee_hitbox.single();
+                            commands.entity(entity_melee_hitbox).despawn();
+                        }
+                    }
                 }
             }
 
@@ -108,14 +94,15 @@ fn switch_player_state(
                 player_next_state.set(PlayerState::Idling);
             }
         }
+
         PlayerState::Dead => {
             next_game_state.set(GameState::GameOver);
         }
     }
 }
 
-fn is_melee_in_cooldown(cooldown_timers: Res<CooldownTimers>) -> bool {
-    if let Some(cooldown) = cooldown_timers.0.get(&Spell::Melee) {
+fn is_spell_in_cooldown(spell: Spell, cooldown_timers: &Res<CooldownTimers>) -> bool {
+    if let Some(cooldown) = cooldown_timers.0.get(&spell) {
         !cooldown.finished()
     } else {
         false

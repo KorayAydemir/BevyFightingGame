@@ -6,9 +6,6 @@ use bevy_hanabi::prelude::*;
 
 use super::{state::PlayerState, Player, PlayerSet};
 
-#[derive(SystemSet, Debug, Clone, PartialEq, Eq, Hash)]
-pub struct PlayerSpellsSet;
-
 pub struct PlayerSpellsPlugin;
 impl Plugin for PlayerSpellsPlugin {
     fn build(&self, app: &mut App) {
@@ -16,18 +13,21 @@ impl Plugin for PlayerSpellsPlugin {
             .insert_resource(CastingTimers(HashMap::default()))
             .add_systems(
                 Update,
-                (
-                    update_cooldown_timers,
-                    update_casting_timers,
-                    cast_spray_fire,
-                    melee_attack,
-                    cast_blazing_sword,
-                )
-                    .in_set(PlayerSpellsSet)
-                    .in_set(PlayerSet),
+                (update_cooldown_timers, update_casting_timers).in_set(PlayerSet),
+            )
+            .add_systems(
+                Update,
+                (cast_spray_fire, melee_attack, cast_blazing_sword)
+                .run_if(state_changed::<PlayerState>)
             );
     }
 }
+
+#[derive(Resource)]
+pub struct CastingTimers(pub HashMap<Spell, Timer>);
+
+#[derive(Resource)]
+pub struct CooldownTimers(pub HashMap<Spell, Timer>);
 
 #[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
 pub enum Spell {
@@ -71,13 +71,7 @@ fn melee_attack(
     mut casting_timers: ResMut<CastingTimers>,
     q_player: Query<(Entity, &Sprite), With<Player>>,
 ) {
-    if !player_state.is_changed() {
-        return;
-    }
-
-    let player_state = player_state.get();
-
-    if *player_state != PlayerState::Melee {
+    if *player_state != PlayerState::CastingSpell(Spell::Melee) {
         return;
     }
 
@@ -113,8 +107,6 @@ fn melee_attack(
             .insert(Spell::Melee, Timer::new(casting_duration, TimerMode::Once));
     }
 
-    /////////////
-
     let (player_entity, player_sprite) = q_player.single();
     create_melee_hitbox(&mut commands, player_entity, player_sprite);
 }
@@ -149,12 +141,6 @@ pub struct SpellDetails<'a> {
     pub mana_cost: u32,
     pub ui_icon: &'a str,
 }
-
-#[derive(Resource)]
-pub struct CastingTimers(pub HashMap<Spell, Timer>);
-
-#[derive(Resource)]
-pub struct CooldownTimers(pub HashMap<Spell, Timer>);
 
 fn update_cooldown_timers(time: Res<Time>, mut timers: ResMut<CooldownTimers>) {
     for (_spell, timer) in &mut timers.0 {
@@ -235,10 +221,6 @@ fn cast_spray_fire(
     player_state: Res<State<PlayerState>>,
     mut timers: ResMut<CooldownTimers>,
 ) {
-    if !player_state.is_changed() {
-        return;
-    }
-
     let player_state = player_state.get();
 
     if *player_state != PlayerState::CastingSpell(Spell::SprayFire) {
@@ -258,7 +240,6 @@ fn cast_spray_fire(
         }
     } else {
         let cooldown_duration = Duration::from_secs(u64::from(Spell::SprayFire.details().cooldown));
-
         timers.0.insert(
             Spell::SprayFire,
             Timer::new(cooldown_duration, TimerMode::Once),
@@ -288,10 +269,6 @@ fn cast_blazing_sword(
     player_state: Res<State<PlayerState>>,
     mut timers: ResMut<CooldownTimers>,
 ) {
-    if !player_state.is_changed() {
-        return;
-    }
-
     let player_state = player_state.get();
 
     if *player_state != PlayerState::CastingSpell(Spell::BlazingSword) {
