@@ -36,7 +36,7 @@ fn switch_player_state(
     mut player_next_state: ResMut<NextState<PlayerState>>,
     player_input: Res<PlayerInput>,
     casting_timers: Res<CastingTimers>,
-    cd_timers: Res<CooldownTimers>,
+    cooldown_timers: Res<CooldownTimers>,
     q_entity_melee_hitbox: Query<Entity, With<PlayerMeleeHitbox>>,
     mut next_game_state: ResMut<NextState<GameState>>,
 ) {
@@ -49,7 +49,7 @@ fn switch_player_state(
             };
 
             if let Some(spell) = player_input.use_spell {
-                if !is_spell_in_cooldown(spell, &cd_timers) {
+                if spell.is_cooldown_finished(&cooldown_timers) {
                     player_next_state.set(PlayerState::CastingSpell(spell));
                 }
             };
@@ -61,7 +61,7 @@ fn switch_player_state(
             };
 
             if let Some(spell) = player_input.use_spell {
-                if !is_spell_in_cooldown(spell, &cd_timers) {
+                if spell.is_cooldown_finished(&cooldown_timers) {
                     player_next_state.set(PlayerState::CastingSpell(spell));
                 }
             };
@@ -75,16 +75,12 @@ fn switch_player_state(
             match spell {
                 Spell::SprayFire | Spell::BlazingSword => {}
                 Spell::Melee => {
-                    if let Some(casting) = casting_timers.0.get(&Spell::Melee) {
-                        if !casting.finished() {
-                            return;
-                        }
-
-                        if casting.finished() {
-                            let entity_melee_hitbox = q_entity_melee_hitbox.single();
-                            commands.entity(entity_melee_hitbox).despawn();
-                        }
+                    if !Spell::Melee.is_casting_finished(&casting_timers) {
+                        return;
                     }
+
+                    let entity_melee_hitbox = q_entity_melee_hitbox.single();
+                    commands.entity(entity_melee_hitbox).despawn();
                 }
             }
 
@@ -98,14 +94,6 @@ fn switch_player_state(
         PlayerState::Dead => {
             next_game_state.set(GameState::GameOver);
         }
-    }
-}
-
-fn is_spell_in_cooldown(spell: Spell, cooldown_timers: &Res<CooldownTimers>) -> bool {
-    if let Some(cooldown) = cooldown_timers.0.get(&spell) {
-        !cooldown.finished()
-    } else {
-        false
     }
 }
 

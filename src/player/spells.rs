@@ -1,6 +1,7 @@
+use std::time::Duration;
+
 use bevy::{prelude::*, utils::HashMap};
 use bevy_rapier2d::prelude::*;
-use std::time::Duration;
 
 use bevy_hanabi::prelude::*;
 
@@ -9,25 +10,81 @@ use super::{state::PlayerState, Player, PlayerSet};
 pub struct PlayerSpellsPlugin;
 impl Plugin for PlayerSpellsPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(CooldownTimers(HashMap::default()))
-            .insert_resource(CastingTimers(HashMap::default()))
+        app.insert_resource(CooldownTimers::new())
+            .insert_resource(CastingTimers::new())
+            .add_systems(Update, update_timers.in_set(PlayerSet))
             .add_systems(
                 Update,
-                (update_cooldown_timers, update_casting_timers).in_set(PlayerSet),
-            )
-            .add_systems(
-                Update,
-                (cast_spray_fire, melee_attack, cast_blazing_sword)
-                .run_if(state_changed::<PlayerState>)
+                (
+                    cast_spray_fire.run_if(in_state(PlayerState::CastingSpell(Spell::SprayFire))),
+                    melee_attack.run_if(in_state(PlayerState::CastingSpell(Spell::Melee))),
+                    cast_blazing_sword
+                        .run_if(in_state(PlayerState::CastingSpell(Spell::BlazingSword))),
+                )
+                    .run_if(state_changed::<PlayerState>),
             );
     }
 }
 
 #[derive(Resource)]
 pub struct CastingTimers(pub HashMap<Spell, Timer>);
+impl CastingTimers {
+    fn new() -> Self {
+        let mut timers = HashMap::new();
+        for spell in Spell::VALUES {
+            let cast_time = spell.details().cast_time;
+            let mut timer = Timer::from_seconds(cast_time, TimerMode::Once);
+            // could this cause floating point errors? maybe use time + 1. ?
+            timer.tick(Duration::from_secs_f32(cast_time));
+            timers.insert(spell, timer);
+        }
+        Self(timers)
+    }
 
+    fn start_spell_casting_timer(&mut self, spell: Spell) {
+        self.0.get_mut(&spell).unwrap().reset();
+    }
+}
 #[derive(Resource)]
 pub struct CooldownTimers(pub HashMap<Spell, Timer>);
+impl CooldownTimers {
+    fn new() -> Self {
+        let mut timers = HashMap::new();
+        for spell in Spell::VALUES {
+            let cooldown_time = spell.details().cooldown;
+            let mut timer = Timer::from_seconds(cooldown_time, TimerMode::Once);
+            // could this cause floating point errors? maybe use time + 1. ?
+            timer.tick(Duration::from_secs_f32(cooldown_time));
+            timers.insert(spell, timer);
+        }
+        Self(timers)
+    }
+
+    fn start_spell_cooldown_timer(&mut self, spell: Spell) {
+        self.0.get_mut(&spell).unwrap().reset();
+    }
+}
+
+fn update_timers(
+    time: Res<Time>,
+    mut cooldown_timers: ResMut<CooldownTimers>,
+    mut casting_timers: ResMut<CastingTimers>,
+) {
+    for (_spell, timer) in &mut cooldown_timers.0 {
+        timer.tick(time.delta());
+    }
+    for (_spell, timer) in &mut casting_timers.0 {
+        timer.tick(time.delta());
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Copy, Component)]
+pub struct SpellDetails<'a> {
+    pub cast_time: f32,
+    pub cooldown: f32,
+    pub mana_cost: u32,
+    pub ui_icon: &'a str,
+}
 
 #[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
 pub enum Spell {
@@ -43,72 +100,46 @@ impl Spell {
     pub fn details(self) -> SpellDetails<'static> {
         match self {
             Spell::SprayFire => SpellDetails {
-                cast_time: 1,
-                cooldown: 1,
+                cast_time: 1.,
+                cooldown: 1.,
                 mana_cost: 10,
                 ui_icon: "skill_icons/FireMage_17.png",
             },
             Spell::BlazingSword => SpellDetails {
-                cast_time: 2,
-                cooldown: 2,
+                cast_time: 2.,
+                cooldown: 2.,
                 mana_cost: 10,
                 ui_icon: "skill_icons/FireMage_20.png",
             },
             Spell::Melee => SpellDetails {
-                cast_time: 1,
-                cooldown: 3,
+                cast_time: 1.,
+                cooldown: 3.,
                 mana_cost: 0,
                 ui_icon: "skill_icons/FireMage_29.png",
             },
         }
     }
+
+    pub fn is_casting_finished(self, casting_timers: &CastingTimers) -> bool {
+        casting_timers.0.get(&self).unwrap().finished()
+    }
+
+    pub fn is_cooldown_finished(self, cooldown_timers: &CooldownTimers) -> bool {
+        cooldown_timers.0.get(&self).unwrap().finished()
+    }
 }
 
 fn melee_attack(
     mut commands: Commands,
-    player_state: Res<State<PlayerState>>,
     mut cooldown_timers: ResMut<CooldownTimers>,
     mut casting_timers: ResMut<CastingTimers>,
     q_player: Query<(Entity, &Sprite), With<Player>>,
 ) {
-    if *player_state != PlayerState::CastingSpell(Spell::Melee) {
-        return;
-    }
-
-    let cooldown_timer = cooldown_timers.0.get_mut(&Spell::Melee);
-
-    if let Some(timer) = cooldown_timer {
-        if timer.finished() {
-            let cooldown_duration = Duration::from_secs(u64::from(Spell::Melee.details().cooldown));
-            timer.set_duration(cooldown_duration);
-            timer.reset();
-        } else {
-            return;
-        }
-    } else {
-        let cooldown_duration = Duration::from_secs(u64::from(Spell::Melee.details().cooldown));
-
-        cooldown_timers
-            .0
-            .insert(Spell::Melee, Timer::new(cooldown_duration, TimerMode::Once));
-    };
-
-    let casting_timer = casting_timers.0.get_mut(&Spell::Melee);
-
-    if let Some(timer) = casting_timer {
-        let casting_duration = Duration::from_secs(u64::from(Spell::Melee.details().cast_time));
-        timer.set_duration(casting_duration);
-        timer.reset();
-    } else {
-        let casting_duration = Duration::from_secs(u64::from(Spell::Melee.details().cast_time));
-
-        casting_timers
-            .0
-            .insert(Spell::Melee, Timer::new(casting_duration, TimerMode::Once));
-    }
-
     let (player_entity, player_sprite) = q_player.single();
     create_melee_hitbox(&mut commands, player_entity, player_sprite);
+
+    cooldown_timers.start_spell_cooldown_timer(Spell::Melee);
+    casting_timers.start_spell_casting_timer(Spell::Melee);
 }
 
 #[derive(Component)]
@@ -134,27 +165,55 @@ fn create_melee_hitbox(commands: &mut Commands, player_entity: Entity, player_sp
         .push_children(&[melee_hitbox]);
 }
 
-#[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
-pub struct SpellDetails<'a> {
-    pub cast_time: u32,
-    pub cooldown: u32,
-    pub mana_cost: u32,
-    pub ui_icon: &'a str,
+fn cast_spray_fire(
+    mut commands: Commands,
+    mut effects: ResMut<Assets<EffectAsset>>,
+    mut q_player: Query<(Entity, &mut Player)>,
+    mut cooldown_timers: ResMut<CooldownTimers>,
+) {
+    let effect = create_fire_cone_effect(&mut effects);
+    let fire_effect = commands
+        .spawn((
+            Name::new("emit:rate"),
+            ParticleEffectBundle {
+                effect: ParticleEffect::new(effect),
+                transform: Transform::from_translation(Vec3::new(0., 0., 0.))
+                    .with_rotation(Quat::from_rotation_z(1.2)),
+                ..Default::default()
+            },
+        ))
+        .id();
+    let (player_id, _player) = q_player.get_single_mut().unwrap();
+    commands.entity(player_id).push_children(&[fire_effect]);
+
+    cooldown_timers.start_spell_cooldown_timer(Spell::SprayFire);
 }
 
-fn update_cooldown_timers(time: Res<Time>, mut timers: ResMut<CooldownTimers>) {
-    for (_spell, timer) in &mut timers.0 {
-        timer.tick(time.delta());
-    }
+fn cast_blazing_sword(
+    mut commands: Commands,
+    mut effects: ResMut<Assets<EffectAsset>>,
+    mut q_player: Query<(Entity, &mut Player)>,
+    mut cooldown_timers: ResMut<CooldownTimers>,
+) {
+    let effect = create_fire_cone_effect(&mut effects);
+    let fire_effect = commands
+        .spawn((
+            Name::new("emit:rate"),
+            ParticleEffectBundle {
+                effect: ParticleEffect::new(effect),
+                transform: Transform::from_translation(Vec3::new(0., 0., 0.))
+                    .with_rotation(Quat::from_rotation_z(-1.2)),
+                ..Default::default()
+            },
+        ))
+        .id();
+    let (player_id, _player) = q_player.get_single_mut().unwrap();
+    commands.entity(player_id).push_children(&[fire_effect]);
+
+    cooldown_timers.start_spell_cooldown_timer(Spell::BlazingSword);
 }
 
-fn update_casting_timers(time: Res<Time>, mut timers: ResMut<CastingTimers>) {
-    for (_spell, timer) in &mut timers.0 {
-        timer.tick(time.delta());
-    }
-}
-
-fn create_spray_fire_effect(effects: &mut ResMut<Assets<EffectAsset>>) -> Handle<EffectAsset> {
+fn create_fire_cone_effect(effects: &mut ResMut<Assets<EffectAsset>>) -> Handle<EffectAsset> {
     let mut color_gradient = Gradient::new();
     color_gradient.add_key(0.0, Vec4::splat(1.0));
     color_gradient.add_key(0.1, Vec4::new(1.0, 1.0, 0.0, 1.0));
@@ -212,102 +271,4 @@ fn create_spray_fire_effect(effects: &mut ResMut<Assets<EffectAsset>>) -> Handle
             screen_space_size: false,
         }),
     )
-}
-
-fn cast_spray_fire(
-    mut commands: Commands,
-    mut effects: ResMut<Assets<EffectAsset>>,
-    mut q_player: Query<(Entity, &mut Player)>,
-    player_state: Res<State<PlayerState>>,
-    mut timers: ResMut<CooldownTimers>,
-) {
-    let player_state = player_state.get();
-
-    if *player_state != PlayerState::CastingSpell(Spell::SprayFire) {
-        return;
-    }
-
-    let spray_fire_timer = timers.0.get_mut(&Spell::SprayFire);
-
-    if let Some(timer) = spray_fire_timer {
-        if timer.finished() {
-            let cooldown_duration =
-                Duration::from_secs(u64::from(Spell::SprayFire.details().cooldown));
-            timer.set_duration(cooldown_duration);
-            timer.reset();
-        } else {
-            return;
-        }
-    } else {
-        let cooldown_duration = Duration::from_secs(u64::from(Spell::SprayFire.details().cooldown));
-        timers.0.insert(
-            Spell::SprayFire,
-            Timer::new(cooldown_duration, TimerMode::Once),
-        );
-    };
-
-    let effect = create_spray_fire_effect(&mut effects);
-    let fire_effect = commands
-        .spawn((
-            Name::new("emit:rate"),
-            ParticleEffectBundle {
-                effect: ParticleEffect::new(effect),
-                transform: Transform::from_translation(Vec3::new(0., 0., 0.))
-                    .with_rotation(Quat::from_rotation_z(1.2)),
-                ..Default::default()
-            },
-        ))
-        .id();
-    let (player_id, _player) = q_player.get_single_mut().unwrap();
-    commands.entity(player_id).push_children(&[fire_effect]);
-}
-
-fn cast_blazing_sword(
-    mut commands: Commands,
-    mut effects: ResMut<Assets<EffectAsset>>,
-    mut q_player: Query<(Entity, &mut Player)>,
-    player_state: Res<State<PlayerState>>,
-    mut timers: ResMut<CooldownTimers>,
-) {
-    let player_state = player_state.get();
-
-    if *player_state != PlayerState::CastingSpell(Spell::BlazingSword) {
-        return;
-    }
-
-    let spell_cd_timer = timers.0.get_mut(&Spell::BlazingSword);
-
-    if let Some(timer) = spell_cd_timer {
-        if timer.finished() {
-            let cooldown_duration =
-                Duration::from_secs(u64::from(Spell::BlazingSword.details().cooldown));
-            timer.set_duration(cooldown_duration);
-            timer.reset();
-        } else {
-            return;
-        }
-    } else {
-        let cooldown_duration =
-            Duration::from_secs(u64::from(Spell::BlazingSword.details().cooldown));
-
-        timers.0.insert(
-            Spell::BlazingSword,
-            Timer::new(cooldown_duration, TimerMode::Once),
-        );
-    };
-
-    let effect = create_spray_fire_effect(&mut effects);
-    let fire_effect = commands
-        .spawn((
-            Name::new("emit:rate"),
-            ParticleEffectBundle {
-                effect: ParticleEffect::new(effect),
-                transform: Transform::from_translation(Vec3::new(0., 0., 0.))
-                    .with_rotation(Quat::from_rotation_z(-1.2)),
-                ..Default::default()
-            },
-        ))
-        .id();
-    let (player_id, _player) = q_player.get_single_mut().unwrap();
-    commands.entity(player_id).push_children(&[fire_effect]);
 }

@@ -18,43 +18,13 @@ fn update_cooldown_box(
     cooldown_timers: Res<CooldownTimers>,
 ) {
     for (mut style, spell) in &mut q_cooldown_box {
-        style.height = match spell {
-            Spell::SprayFire => {
-                if let Some(timer) = cooldown_timers.0.get(&Spell::SprayFire) {
-                    Val::Percent(timer.remaining_secs() * (100. / timer.duration().as_secs_f32() ))
-                } else {
-                    Val::Percent(0.)
-                }
-            }
-            Spell::BlazingSword => {
-                if let Some(timer) = cooldown_timers.0.get(&Spell::BlazingSword) {
-                    Val::Percent(timer.remaining_secs() * (100. / timer.duration().as_secs_f32() ))
-                } else {
-                    Val::Percent(0.)
-                }
-            }
-            Spell::Melee => {
-                if let Some(timer) = cooldown_timers.0.get(&Spell::Melee) {
-                    Val::Percent(timer.remaining_secs() * (100. / timer.duration().as_secs_f32() ))
-                } else {
-                    Val::Percent(0.)
-                }
-            }
-        }
+        let timer = cooldown_timers
+            .0
+            .get(spell)
+            .expect("Cooldown timer for spell must exist");
+        style.height =
+            Val::Percent(timer.remaining_secs() * (100. / timer.duration().as_secs_f32()));
     }
-}
-
-fn spawn_cooldown_boxes_container<'a>(commands: &'a mut Commands) -> EntityCommands<'a> {
-    commands.spawn(NodeBundle {
-        style: Style {
-            width: Val::Percent(80.0),
-            height: Val::Percent(10.0),
-            position_type: PositionType::Absolute,
-            bottom: Val::Px(10.),
-            ..default()
-        },
-        ..default()
-    })
 }
 
 fn spawn_cooldown_box_for_spell(
@@ -64,6 +34,7 @@ fn spawn_cooldown_box_for_spell(
     asset_server: &Res<AssetServer>,
 ) {
     let spell_details = spell_type.details();
+
     container.with_children(|parent| {
         parent
             .spawn((
@@ -120,9 +91,18 @@ fn spawn_cooldown_box_for_spell(
 }
 
 fn spawn_cooldown_box(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let mut container = spawn_cooldown_boxes_container(&mut commands);
+    let mut cooldown_box_container = commands.spawn(NodeBundle {
+        style: Style {
+            width: Val::Percent(80.0),
+            height: Val::Percent(10.0),
+            position_type: PositionType::Absolute,
+            bottom: Val::Px(10.),
+            ..default()
+        },
+        ..default()
+    });
 
     for (i, spell) in Spell::VALUES.iter().enumerate() {
-        spawn_cooldown_box_for_spell(&mut container, *spell, i as f32, &asset_server);
+        spawn_cooldown_box_for_spell(&mut cooldown_box_container, *spell, i as f32, &asset_server);
     }
 }
