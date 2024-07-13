@@ -5,14 +5,14 @@ use bevy_rapier2d::prelude::*;
 
 use bevy_hanabi::prelude::*;
 
-use super::{state::PlayerState, Player, PlayerSet};
+use super::{state::PlayerState, Player};
 
 pub struct PlayerSpellsPlugin;
 impl Plugin for PlayerSpellsPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(CooldownTimers::new())
             .insert_resource(CastingTimers::new())
-            .add_systems(Update, update_timers.in_set(PlayerSet))
+            .add_systems(Update, (update_timers, despawn_melee_hitbox))
             .add_systems(
                 Update,
                 (
@@ -136,23 +136,33 @@ fn melee_attack(
     q_player: Query<(Entity, &Sprite), With<Player>>,
 ) {
     let (player_entity, player_sprite) = q_player.single();
-    create_melee_hitbox(&mut commands, player_entity, player_sprite);
+    create_melee_hitbox(
+        &mut commands,
+        player_entity,
+        player_sprite,
+        Spell::Melee.details().cast_time,
+    );
 
     cooldown_timers.start_spell_cooldown_timer(Spell::Melee);
     casting_timers.start_spell_casting_timer(Spell::Melee);
 }
 
 #[derive(Component)]
-pub struct PlayerMeleeHitbox;
+pub struct PlayerMeleeHitbox(Timer);
 
-fn create_melee_hitbox(commands: &mut Commands, player_entity: Entity, player_sprite: &Sprite) {
+fn create_melee_hitbox(
+    commands: &mut Commands,
+    player_entity: Entity,
+    player_sprite: &Sprite,
+    despawn_after_secs: f32,
+) {
     let mut transform = Transform::from_translation(Vec3::new(36., -24., 0.));
     if player_sprite.flip_x {
         transform.translation.x *= -1.;
     }
     let melee_hitbox = commands
         .spawn((
-            PlayerMeleeHitbox,
+            PlayerMeleeHitbox(Timer::from_seconds(despawn_after_secs, TimerMode::Once)),
             Collider::cuboid(30., 10.),
             TransformBundle::from_transform(transform),
             ActiveEvents::COLLISION_EVENTS,
@@ -163,6 +173,19 @@ fn create_melee_hitbox(commands: &mut Commands, player_entity: Entity, player_sp
     commands
         .entity(player_entity)
         .push_children(&[melee_hitbox]);
+}
+
+fn despawn_melee_hitbox(
+    mut commands: Commands,
+    mut q_hitbox: Query<(Entity, &mut PlayerMeleeHitbox)>,
+    time: Res<Time>,
+) {
+    if let Ok((hitbox_entity, mut hitbox_component)) = q_hitbox.get_single_mut() {
+        hitbox_component.0.tick(time.delta());
+        if hitbox_component.0.finished() {
+            commands.entity(hitbox_entity).despawn();
+        }
+    };
 }
 
 fn cast_spray_fire(

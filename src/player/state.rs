@@ -78,9 +78,6 @@ fn switch_player_state(
                     if !Spell::Melee.is_casting_finished(&casting_timers) {
                         return;
                     }
-
-                    let entity_melee_hitbox = q_entity_melee_hitbox.single();
-                    commands.entity(entity_melee_hitbox).despawn();
                 }
             }
 
