@@ -2,11 +2,7 @@ use bevy::{prelude::*, utils::HashMap};
 use bevy_rapier2d::prelude::*;
 use std::time::Duration;
 
-use bevy_hanabi::{
-    AccelModifier, Attribute, ColorOverLifetimeModifier, EffectAsset, ExprWriter, Gradient,
-    ParticleEffect, ParticleEffectBundle, SetAttributeModifier, SetPositionCone3dModifier,
-    SetVelocitySphereModifier, ShapeDimension, SizeOverLifetimeModifier, Spawner,
-};
+use bevy_hanabi::prelude::*;
 
 use super::{state::PlayerState, Player, PlayerSet};
 
@@ -27,7 +23,8 @@ impl Plugin for PlayerSpellsPlugin {
                     melee_attack,
                     cast_blazing_sword,
                 )
-                    .in_set(PlayerSpellsSet).in_set(PlayerSet),
+                    .in_set(PlayerSpellsSet)
+                    .in_set(PlayerSet),
             );
     }
 }

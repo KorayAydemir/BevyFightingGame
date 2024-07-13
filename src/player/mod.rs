@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-pub mod collision;
+mod collision;
 mod events;
 mod input;
 mod movement;
@@ -35,7 +35,6 @@ impl Plugin for PlayerPlugin {
 pub struct Player {
     pub collider_entity: Entity,
 }
-
 impl Player {
     fn new(collider_entity: Entity) -> Player {
         Player { collider_entity }

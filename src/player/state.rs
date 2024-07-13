@@ -28,6 +28,7 @@ pub enum PlayerState {
     Melee,
     Dead,
 }
+
 impl_can_move!(PlayerState);
 
 fn switch_player_state(

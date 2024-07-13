@@ -1,10 +1,8 @@
 use bevy::prelude::*;
 
-use crate::{player::Player, GameState};
+use crate::player::Player;
 
-use super::Slime;
-
-const BASE_SPEED: f32 = 50.;
+use super::{Slime, SLIME_BASE_SPEED};
 
 pub struct SlimeMovementPlugin;
 impl Plugin for SlimeMovementPlugin {
@@ -16,7 +14,7 @@ impl Plugin for SlimeMovementPlugin {
 fn movement(
     mut q_slime_transforms: Query<&mut Transform, With<Slime>>,
     q_player_transform: Query<&Transform, (With<Player>, Without<Slime>)>,
-    time: Res<Time>
+    time: Res<Time>,
 ) {
     let player_translation = q_player_transform.single().translation;
 
@@ -35,7 +33,7 @@ fn movement(
             1.
         };
 
-        translation.x += time.delta_seconds() * BASE_SPEED * x_direction_multiplier;
-        translation.y += time.delta_seconds() * BASE_SPEED * y_direction_multiplier;
+        translation.x += time.delta_seconds() * SLIME_BASE_SPEED * x_direction_multiplier;
+        translation.y += time.delta_seconds() * SLIME_BASE_SPEED * y_direction_multiplier;
     }
 }

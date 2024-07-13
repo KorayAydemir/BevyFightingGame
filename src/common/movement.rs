@@ -3,18 +3,17 @@ pub struct Direction {
     pub vertical: Option<Vertical>,
     pub horizontal: Option<Horizontal>,
 }
-
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
 pub enum Vertical {
     Up,
     Down,
 }
-
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
 pub enum Horizontal {
     Left,
     Right,
 }
+
 pub trait CanMove {
     fn get_move_direction(&self) -> Option<Direction>;
 }

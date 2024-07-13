@@ -21,14 +21,12 @@ pub fn spawn_player(
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    let layout =
+    let atlas_layout =
         TextureAtlasLayout::from_grid(Vec2::new(128., 128.), 8, 3, Some(Vec2::new(16., 0.)), None);
-
-    let texture_atlas_layout = texture_atlas_layouts.add(layout);
+    let atlas_layout_handle = texture_atlas_layouts.add(atlas_layout);
 
     let player = commands
         .spawn((
-            //RigidBody::KinematicPositionBased,
             Name::new("Player"),
             RigidBody::Dynamic,
             Velocity::zero(),
@@ -37,7 +35,7 @@ pub fn spawn_player(
                 transform: Transform::from_translation(PLAYER_SPAWN_POS).with_scale(PLAYER_SCALE),
                 texture: asset_server.load("player_spritesheet.png"),
                 atlas: TextureAtlas {
-                    layout: texture_atlas_layout,
+                    layout: atlas_layout_handle,
                     index: 0,
                 },
                 ..default()

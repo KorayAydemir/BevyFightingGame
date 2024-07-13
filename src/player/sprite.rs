@@ -9,7 +9,10 @@ use crate::common::sprite::AnimationTimer;
 pub struct PlayerSpritePlugin;
 impl Plugin for PlayerSpritePlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (update_indices, flip_sprite::<Player, PlayerState>).in_set(PlayerSet));
+        app.add_systems(
+            Update,
+            (update_indices, flip_sprite::<Player, PlayerState>).in_set(PlayerSet),
+        );
     }
 }
 

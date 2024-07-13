@@ -1,13 +1,14 @@
 use bevy::prelude::*;
 
+mod collision;
 mod movement;
 mod spawn;
-mod state;
 mod sprite;
-mod collision;
+mod state;
 
 pub const MIN_SLIME_SCALE: f32 = 1.0;
 pub const MAX_SLIME_SCALE: f32 = 1.4;
+pub const SLIME_BASE_SPEED: f32 = 10.;
 
 pub struct SlimePlugin;
 impl Plugin for SlimePlugin {
@@ -26,8 +27,6 @@ pub struct Slime {
 }
 impl Slime {
     pub fn new(id: usize) -> Slime {
-        Slime {
-            id,
-        }
+        Slime { id }
     }
 }
