@@ -70,12 +70,13 @@ fn update_timers(
     mut cooldown_timers: ResMut<CooldownTimers>,
     mut casting_timers: ResMut<CastingTimers>,
 ) {
-    for (_spell, timer) in &mut cooldown_timers.0 {
-        timer.tick(time.delta());
-    }
-    for (_spell, timer) in &mut casting_timers.0 {
-        timer.tick(time.delta());
-    }
+    cooldown_timers
+        .0
+        .iter_mut()
+        .chain(casting_timers.0.iter_mut())
+        .for_each(|(_spell, timer)| {
+            timer.tick(time.delta());
+        });
 }
 
 #[derive(Debug, PartialEq, Clone, Copy, Component)]
@@ -85,7 +86,6 @@ pub struct SpellDetails<'a> {
     pub mana_cost: u32,
     pub ui_icon: &'a str,
 }
-
 #[derive(Debug, PartialEq, Clone, Copy, Component, Hash, Eq)]
 pub enum Spell {
     SprayFire,
@@ -95,7 +95,6 @@ pub enum Spell {
 impl Spell {
     pub const VALUES: [Self; 3] = [Self::SprayFire, Self::BlazingSword, Self::Melee];
 }
-
 impl Spell {
     pub fn details(self) -> SpellDetails<'static> {
         match self {
@@ -142,7 +141,6 @@ fn melee_attack(
         player_sprite,
         Spell::Melee.details().cast_time,
     );
-
     cooldown_timers.start_spell_cooldown_timer(Spell::Melee);
     casting_timers.start_spell_casting_timer(Spell::Melee);
 }
@@ -169,7 +167,6 @@ fn create_melee_hitbox(
             ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
         ))
         .id();
-
     commands
         .entity(player_entity)
         .push_children(&[melee_hitbox]);

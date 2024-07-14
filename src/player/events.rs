@@ -7,11 +7,11 @@ pub struct PlayerEventsPlugin;
 impl Plugin for PlayerEventsPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<PlayerEvents>()
-            .add_systems(Update, events.in_set(PlayerSet));
+            .add_systems(Update, handle_events.in_set(PlayerSet));
     }
 }
 
-fn events(
+fn handle_events(
     mut player_events: EventReader<PlayerEvents>,
     mut q_player: Query<&mut Health, With<Player>>,
     mut player_state: ResMut<NextState<PlayerState>>,

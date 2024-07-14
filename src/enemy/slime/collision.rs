@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::{player::{spells::PlayerMeleeHitbox, Player}, GameState};
+use crate::{player::{spells::PlayerMeleeHitbox, Player}};
 
 use super::Slime;
 
@@ -9,7 +9,7 @@ pub struct SlimeCollisionPlugin;
 impl Plugin for SlimeCollisionPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, player_collision)
-            .add_systems(Update, player_melee_collisions);
+            .add_systems(Update, player_melee_hitbox_collisions);
     }
 }
 
@@ -53,33 +53,31 @@ fn player_collision(
     }
 }
 
-fn player_melee_collisions(
-    mut q_melee_hitbox: Query<Entity, With<PlayerMeleeHitbox>>,
+fn player_melee_hitbox_collisions(
+    q_melee_hitbox: Query<Entity, With<PlayerMeleeHitbox>>,
     mut ev_collision_events: EventReader<CollisionEvent>,
-    mut q_collider_parents: Query<&Parent, (With<Collider>, Without<Player>)>,
+    q_collider_parents: Query<&Parent, (With<Collider>, Without<Player>)>,
     mut commands: Commands,
 ) {
+    let Ok(melee_hitbox) = q_melee_hitbox.get_single() else {
+        return
+    };
+
     for ev in ev_collision_events.read() {
         let (collider_entity1, collider_entity2) = match ev {
             CollisionEvent::Started(collider1, collider2, _) => (collider1, collider2),
             CollisionEvent::Stopped(_, _, _) => continue,
         };
-
-        let melee_hitbox = match q_melee_hitbox.get_single() {
-            Ok(hitbox) => hitbox,
-            Err(_) => continue,
-        };
-
         let enemy_parent = if &melee_hitbox == collider_entity1 {
-            match q_collider_parents.get(*collider_entity2) {
-                Ok(parent) => parent,
-                Err(_) => continue,
-            }
+            let Ok(parent) = q_collider_parents.get(*collider_entity2) else {
+                continue;
+            };
+            parent
         } else if &melee_hitbox == collider_entity2 {
-            match q_collider_parents.get(*collider_entity1) {
-                Ok(parent) => parent,
-                Err(_) => continue,
-            }
+            let Ok(parent) = q_collider_parents.get(*collider_entity1) else {
+                continue;
+            };
+            parent
         } else {
             continue;
         };

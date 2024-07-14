@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_ecs_ldtk::{app::LdtkEntityAppExt, LdtkEntity};
 use bevy_rapier2d::prelude::*;
 
 use super::{

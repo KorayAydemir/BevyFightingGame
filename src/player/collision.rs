@@ -3,7 +3,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     enemy::Enemy,
-    player::{GotHitInfo, Health, Player},
+    player::{GotHitInfo, Player},
 };
 
 use super::{PlayerEvents, PlayerSet};
@@ -16,13 +16,13 @@ impl Plugin for PlayerCollisionPlugin {
 }
 
 pub fn slime_collision(
-    mut q_player: Query<(&Player, &Transform, &mut Health), With<Player>>,
-    q_enemies: Query<(&Transform, &Enemy)>,
+    mut q_player: Query<&Player>,
+    q_enemies: Query<&Enemy>,
     mut ev_collision_events: EventReader<CollisionEvent>,
     q_collider_parents: Query<&Parent, With<Collider>>,
     mut player_events: EventWriter<PlayerEvents>,
 ) {
-    let (player, transform, mut player_health) = q_player.single_mut();
+    let player = q_player.single_mut();
 
     for ev in ev_collision_events.read() {
         let (collider_entity1, collider_entity2) = match ev {
@@ -31,21 +31,20 @@ pub fn slime_collision(
         };
 
         let enemy_parent = if &player.collider_entity == collider_entity1 {
-            match q_collider_parents.get(*collider_entity2) {
-                Ok(parent) => parent,
-                Err(_) => continue,
-            }
+            let Ok(parent) = q_collider_parents.get(*collider_entity2) else {
+                continue;
+            };
+            parent
         } else if &player.collider_entity == collider_entity2 {
-            match q_collider_parents.get(*collider_entity1) {
-                Ok(parent) => parent,
-                Err(_) => continue,
-            }
+            let Ok(parent) = q_collider_parents.get(*collider_entity1) else {
+                continue;
+            };
+            parent
         } else {
             continue;
         };
 
-
-        let Ok((enemy_transform, enemy)) = q_enemies.get(enemy_parent.get()) else {
+        let Ok(enemy) = q_enemies.get(enemy_parent.get()) else {
             return;
         };
 

@@ -51,6 +51,7 @@ fn spawn_cooldown_box_for_spell(
                 Outline::new(Val::Px(5.), Val::ZERO, Color::GREEN),
             ))
             .with_children(|parent| {
+                // kisalik amaciyla bu satirlar gizlendi.
                 parent.spawn((
                     NodeBundle {
                         style: Style {
