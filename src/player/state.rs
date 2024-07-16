@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use super::{
     input::PlayerInput,
-    spells::{CastingTimers, CooldownTimers, PlayerMeleeHitbox, Spell},
+    spells::{CastingTimers, CooldownTimers, Spell},
 };
 
 use crate::{common::movement::Direction, impl_can_move, GameState};
@@ -31,13 +31,11 @@ pub enum PlayerState {
 impl_can_move!(PlayerState);
 
 fn switch_player_state(
-    mut commands: Commands,
     player_state: Res<State<PlayerState>>,
     mut player_next_state: ResMut<NextState<PlayerState>>,
     player_input: Res<PlayerInput>,
     casting_timers: Res<CastingTimers>,
     cooldown_timers: Res<CooldownTimers>,
-    q_entity_melee_hitbox: Query<Entity, With<PlayerMeleeHitbox>>,
     mut next_game_state: ResMut<NextState<GameState>>,
 ) {
     let player_state = player_state.get();

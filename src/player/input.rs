@@ -17,7 +17,6 @@ impl Plugin for PlayerInputPlugin {
 pub struct PlayerInput {
     pub move_direction: Option<Direction>,
     pub use_spell: Option<Spell>,
-    pub use_melee: bool,
 }
 
 fn player_movement(keys: Res<ButtonInput<KeyCode>>, mut player_input: ResMut<PlayerInput>) {

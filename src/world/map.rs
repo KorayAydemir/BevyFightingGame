@@ -1,5 +1,3 @@
-use std::collections::VecDeque;
-
 use bevy::{
     prelude::*,
     utils::{HashMap, HashSet},
@@ -15,9 +13,15 @@ impl Plugin for MapPlugin {
             .add_systems(Startup, spawn_tilemap)
             .insert_resource(LevelSelection::index(0))
             .register_ldtk_int_cell::<WallBundle>(1)
-            //.add_systems(Update, cache_wall_locations);
             .add_systems(Update, spawn_wall_collision);
     }
+}
+
+fn spawn_tilemap(mut commands: Commands, asset_server: Res<AssetServer>) {
+    commands.spawn(LdtkWorldBundle {
+        ldtk_handle: asset_server.load("tilemap/hills.ldtk"),
+        ..Default::default()
+    });
 }
 
 #[derive(Default, Component)]
@@ -27,85 +31,6 @@ struct Wall;
 struct WallBundle {
     wall: Wall,
 }
-
-//#[derive(Debug)]
-//struct ColliderRectangle {
-//    position: Vec3,
-//    width: i32,
-//    height: i32,
-//}
-
-//fn cache_wall_locations(
-//    mut level_events: EventReader<LevelEvent>,
-//    q_walls: Query<&GridCoords, With<Wall>>,
-//    mut commands: Commands,
-//) {
-//    for level_event in level_events.read() {
-//        if let LevelEvent::Spawned(level_iid) = level_event {
-//            let walls = q_walls.into_iter().copied().collect::<Vec<_>>();
-//            let lines = find_lines(walls);
-//            println!("{:?}", lines);
-//            for line in lines {
-//                let collider_shape = if line.horizontal {
-//                    (line.length as f32 * 8., 8.)
-//                } else {
-//                    (8., line.length as f32 * 8.)
-//                };
-//
-//                commands.spawn((
-//                    Collider::cuboid(collider_shape.0, collider_shape.1),
-//                    TransformBundle::from_transform(Transform::from_translation(Vec3::new(
-//                        line.position.0 as f32 * 17., line.position.1 as f32 * 17., 0.0,
-//                    ))),
-//                    RigidBody::KinematicPositionBased,
-//                    ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
-//                ));
-//            }
-//        }
-//    }
-//}
-
-#[derive(Debug)]
-struct Line {
-    position: (i32, i32),
-    length: i32,
-    horizontal: bool,
-}
-
-//fn find_lines(wall_coords: Vec<GridCoords>) -> Vec<Line> {
-//    let mut remaining: HashSet<GridCoords> = wall_coords.into_iter().collect();
-//    let mut lines = Vec::new();
-//
-//    // add the coord as a line. if lines doesnt already have it
-//
-//    // if remaining has the same coords but with x + 1
-//    // then add that coord
-//
-//    // Find horizontal lines
-//    for &coord in &remaining.clone() {
-//        if remaining.contains(&coord) {
-//            let mut length = 1;
-//            let mut x = coord.x + 1;
-//            while remaining.contains(&GridCoords { x, y: coord.y }) {
-//                remaining.remove(&GridCoords { x, y: coord.y });
-//                length += 1;
-//                x += 1;
-//            }
-//            if length > 1 {
-//                lines.push(Line {
-//                    position: (coord.x, coord.y),
-//                    length,
-//                    horizontal: true,
-//                });
-//                // Remove the starting coordinate of the line
-//                remaining.remove(&coord);
-//            }
-//        }
-//    }
-//
-//
-//    lines
-//}
 
 #[allow(clippy::too_many_lines)]
 fn spawn_wall_collision(
@@ -263,13 +188,6 @@ fn spawn_wall_collision(
             }
         });
     }
-}
-
-fn spawn_tilemap(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn(LdtkWorldBundle {
-        ldtk_handle: asset_server.load("tilemap/hills.ldtk"),
-        ..Default::default()
-    });
 }
 
 fn spawn_map_borders(mut commands: Commands, mut rapier_config: ResMut<RapierConfiguration>) {

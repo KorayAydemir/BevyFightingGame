@@ -1,0 +1,61 @@
+3.1 DONANIMSAL GEREÇLER
+3.2 YAZILIMSAL GEREÇLER
+3.3 ARAŞTIRMA VE PLANLAMA
+3.4 GELİŞTİRME SÜRECİ
+3.4.1 KURULUM
+3.4.2 TASARIM
+3.4.3 OYUNUN GELİŞTİRİLMESİ
+4. BULGULAR
+4.1 PERFORMANS ANALİZİ
+4.2 HAFIZA YÖNETİMİ VE GÜVENLİK
+4.3 EŞZAMANLILIK VE MULTITHREADING
+4.4 GELİŞTİRİCİ TECRÜBESİ
+4.4.1 KULLANIM KOLAYLIĞI VE ÖĞRENME EĞRİSİ
+4.4.2 TOPLULUK VE EKOSİSTEM DESTEĞİ
+4.4.3 DEBUG’LAMA VE HATA YÖNETİMİ
+5. TARTIŞMA
+6. SONUÇ
+KAYNAKLAR
+ÖZGEÇMİŞ
+
+Şekil 3.1: main.rs dosyasının en üstündeki importlar
+Şekil 3.2: main.rs dosyasının içindeki main fonksiyonu
+Şekil 3.3: Projenin, pluginlere bölünmüş olan dosya düzeni.
+Şekil 3.4: Player plugini
+Şekil 3.5: Kullanıcıdan girdi almak
+Şekil 3.6: src/player/state.rs dosyasının başlangıcı
+Şekil 3.7: Oyuncu state makinesinin sistemi
+Şekil 3.8 Oyuncuyu hareket ettiren sistem
+Şekil 3.9: Oyuncu karakteri sprisheet’i [5]
+Şekil 3.10: Karakterin spawn edilmesi
+Şekil 3.11: Assets klasörü
+Şekil 3.12: PlayerSpritePlugin
+Şekil 3.13: kullanılan sprite animasyonu fonksiyonu ve sprite’ı çevirme fonksiyonu.
+Şekil 3.14: flip_sprite fonksiyonunun kullanımları
+Şekil 3.15:.Macro kullanarak, can_move trait’inin implement edilmesi
+Şekil 3.16: CanMove trait’i ve impl_can_move macro’su
+Şekil 3.17: impl_can_move macrosunun açılımı
+Şekil 3.18: spawn_slime fonksiyonu
+Şekil 3.19: Rapier2D debug modunun collision kutularını oyun içinde göstermesi
+Şekil 3.20: Player yeteneklerini yöneten PlayerSpellsPlugin dosyası, src/player/spells.rs
+Şekil 3.21: Spell enum’ına metodlar ekliyoruz
+Şekil 3.22: Kullanıcıdan yetenek kullanması için input alınması.
+Şekil 3.23: State makinesi
+Şekil 3.24: Melee yeteneği. PlayerState CastingSpell(Spell:Melee) olduğunda çalışır.
+Şekil 3.25: Spray Fire yeteneği, PlayerState CastingSpell(Spell::SprayFire) olduğunda çalışır.
+Şekil 3.25: Spray Fire yeteneği, PlayerState CastingSpell(Spell::SprayFire) olduğunda çalışır.
+Şekil 3.26: Melee hitbox ve slime’ın çarpışmasını yönetem sistem.
+Şekil 3.27: Karakterin hasar almasını sağlayan sistem.
+Şekil 3.28: Event firlatılması.
+Şekil 3.29: Bekleme süresindeki yeteneklerin kullanıcı arayüzünde görünümü.
+Şekil 3.30: Yetenek kutucuklarını oluşturan sistem
+Şekil 3.31: Yetenek kutucuklarını oluşturan sistemin yardımcı fonksiyonu
+Şekil 3.32: Bekleme süresi perdesi.
+Şekil 3.33: Kalpleri oluşturan ve güncelleyen sistem.
+Şekil 3.34: get_hearts_images yardımcı fonksiyonu.
+Şekil 3.35: Ldtk uygulaması içinde bir tilemap ve map oluşturulması
+Şekil 3.36: Tilemapimizdeki kaynakların bevy_ecs_ldtk’e kaydedilmesi
+Şekil 3.37: spawn_wall_collision sistemi
+Şekil 3.38: spawn_wall_collision sistemi devamı
+Şekil 3.39: spawn_wall_collision sistemi devamı
+Şekil 4.1: Rust derleyicisi, bu değerin null olabileceği durumu yönetmediğim için beni uyarıp çözüm önerisi veriyor
