@@ -12,7 +12,7 @@ impl Plugin for PlayerSpellsPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(CooldownTimers::new())
             .insert_resource(CastingTimers::new())
-            .add_systems(Update, (update_timers, despawn_melee_hitbox))
+            .add_systems(Update, (update_timers, despawn_melee_hitbox, despawn_fire_cone_hitbox))
             .add_systems(
                 Update,
                 (
@@ -99,7 +99,7 @@ impl Spell {
     pub fn details(self) -> SpellDetails<'static> {
         match self {
             Spell::SprayFire => SpellDetails {
-                cast_time: 1.,
+                cast_time: 2.,
                 cooldown: 1.,
                 mana_cost: 10,
                 ui_icon: "skill_icons/FireMage_17.png",
@@ -188,7 +188,7 @@ fn despawn_melee_hitbox(
 fn cast_spray_fire(
     mut commands: Commands,
     mut effects: ResMut<Assets<EffectAsset>>,
-    mut q_player: Query<(Entity, &mut Player)>,
+    mut q_player: Query<(Entity, &Sprite, &Transform), With<Player>>,
     mut cooldown_timers: ResMut<CooldownTimers>,
 ) {
     let effect = create_fire_cone_effect(&mut effects);
@@ -203,7 +203,12 @@ fn cast_spray_fire(
             },
         ))
         .id();
-    let (player_id, _player) = q_player.get_single_mut().unwrap();
+
+
+    let (player_id, sprite, transform) = q_player.get_single_mut().unwrap();
+
+    create_fire_cone_hitbox(&mut commands, player_id, sprite, 1.0, transform);
+
     commands.entity(player_id).push_children(&[fire_effect]);
 
     cooldown_timers.start_spell_cooldown_timer(Spell::SprayFire);
@@ -231,6 +236,41 @@ fn cast_blazing_sword(
     commands.entity(player_id).push_children(&[fire_effect]);
 
     cooldown_timers.start_spell_cooldown_timer(Spell::BlazingSword);
+}
+
+
+#[derive(Component)]
+pub struct FireConeHitbox(Timer); 
+
+fn despawn_fire_cone_hitbox(
+    mut commands: Commands,
+    mut q_hitbox: Query<(Entity, &mut FireConeHitbox)>,
+    time: Res<Time>,
+) {
+    if let Ok((hitbox_entity, mut hitbox_component)) = q_hitbox.get_single_mut() {
+        hitbox_component.0.tick(time.delta());
+        if hitbox_component.0.finished() {
+            commands.entity(hitbox_entity).despawn();
+        }
+    };
+}
+
+fn create_fire_cone_hitbox(
+    commands: &mut Commands,
+    player_entity: Entity,
+    player_sprite: &Sprite,
+    despawn_after_secs: f32,
+    player_transform: &Transform,
+) {
+    let hitbox_transform = Transform::from_translation(Vec3::new(player_transform.translation.x - 40. , player_transform.translation.y, 0.));
+    commands
+        .spawn((
+            FireConeHitbox(Timer::from_seconds(despawn_after_secs, TimerMode::Once)),
+            Collider::cuboid(40., 45.),
+            TransformBundle::from_transform(hitbox_transform),
+            ActiveEvents::COLLISION_EVENTS,
+            ActiveCollisionTypes::default() | ActiveCollisionTypes::KINEMATIC_KINEMATIC,
+        ));
 }
 
 fn create_fire_cone_effect(effects: &mut ResMut<Assets<EffectAsset>>) -> Handle<EffectAsset> {

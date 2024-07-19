@@ -20,6 +20,7 @@ impl Plugin for MapPlugin {
 fn spawn_tilemap(mut commands: Commands, asset_server: Res<AssetServer>) {
     commands.spawn(LdtkWorldBundle {
         ldtk_handle: asset_server.load("tilemap/hills.ldtk"),
+        transform: Transform::from_xyz(0., 0., -10.),
         ..Default::default()
     });
 }
@@ -32,7 +33,7 @@ struct WallBundle {
     wall: Wall,
 }
 
-#[allow(clippy::too_many_lines)]
+#[allow(clippy::too_many_lines, clippy::cast_possible_truncation)]
 fn spawn_wall_collision(
     mut commands: Commands,
     wall_query: Query<(&GridCoords, &Parent), Added<Wall>>,

@@ -29,13 +29,13 @@ impl Plugin for UiPlugin {
 
 fn spawn_perfui(mut commands: Commands) {
     //commands.spawn(PerfUiCompleteBundle::default());
-    commands.spawn((
-        PerfUiRoot {
-            position: iyes_perf_ui::PerfUiPosition::BottomRight,
-            ..default()
-        },
-        PerfUiEntryFPS::default(),
-        PerfUiEntryFPSWorst::default(),
-        PerfUiEntryWindowResolution::default(),
-    ));
+    //commands.spawn((
+    //    PerfUiRoot {
+    //        position: iyes_perf_ui::PerfUiPosition::BottomRight,
+    //        ..default()
+    //    },
+    //    PerfUiEntryFPS::default(),
+    //    PerfUiEntryFPSWorst::default(),
+    //    PerfUiEntryWindowResolution::default(),
+    //));
 }
