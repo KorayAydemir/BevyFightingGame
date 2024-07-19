@@ -5,7 +5,7 @@ pub struct HealthUiPlugin;
 impl Plugin for HealthUiPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, update_hearts.after(spawn_player));
-        app.add_systems(Update, update_hearts.run_if(on_event::<PlayerEvents>()));
+        app.add_systems(Update, update_hearts);
     }
 }
 
@@ -15,10 +15,14 @@ struct UiHearts;
 fn update_hearts(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    q_player_health: Query<&Health, With<Player>>,
+    q_player_health: Query<&Health, (With<Player>, Changed<Health>)>,
     ui_hearts: Query<Entity, With<UiHearts>>,
 ) {
-    let player_health = q_player_health.single().health;
+    let player_health = match q_player_health.get_single() {
+        Ok(player_health) => player_health.health,
+        Err(_) => return,
+    };
+
     if let Ok(ui_hearts) = ui_hearts.get_single() {
         commands.entity(ui_hearts).despawn_recursive();
     };

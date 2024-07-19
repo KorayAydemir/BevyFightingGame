@@ -1,11 +1,13 @@
 use bevy::prelude::*;
 
+use crate::impl_can_move;
+
 use super::{
     input::PlayerInput,
     spells::{CastingTimers, CooldownTimers, Spell},
 };
-
-use crate::{common::movement::Direction, impl_can_move, GameState};
+use crate::common::movement::Direction;
+use crate::world::game::GameState;
 
 pub struct PlayerStatePlugin;
 impl Plugin for PlayerStatePlugin {
@@ -36,7 +38,6 @@ fn switch_player_state(
     player_input: Res<PlayerInput>,
     casting_timers: Res<CastingTimers>,
     cooldown_timers: Res<CooldownTimers>,
-    mut next_game_state: ResMut<NextState<GameState>>,
 ) {
     let player_state = player_state.get();
 
@@ -87,7 +88,7 @@ fn switch_player_state(
         }
 
         PlayerState::Dead => {
-            next_game_state.set(GameState::GameOver);
+            println!("Player is dead!");
         }
     }
 }

@@ -5,6 +5,7 @@ use bevy_rapier2d::{
 };
 
 mod camera;
+pub mod game;
 mod map;
 
 pub struct WorldPlugin;
@@ -15,6 +16,7 @@ impl Plugin for WorldPlugin {
             RapierDebugRenderPlugin::default(),
         ))
         .add_plugins(camera::CameraPlugin)
-        .add_plugins(map::MapPlugin);
+        .add_plugins(map::MapPlugin)
+        .add_plugins(game::GamePlugin);
     }
 }

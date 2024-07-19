@@ -8,6 +8,7 @@
 
 use std::env;
 
+use crate::world::game::GameState;
 use bevy::{
     prelude::*,
     window::{PresentMode, WindowMode, WindowResolution},
@@ -21,13 +22,6 @@ mod neutral;
 mod player;
 mod ui;
 mod world;
-
-#[derive(States, Clone, Eq, PartialEq, Debug, Hash, Default)]
-pub enum GameState {
-    #[default]
-    Playing,
-    GameOver,
-}
 
 fn main() {
     env::set_var("RUST_BACKTRACE", "1");
@@ -48,7 +42,6 @@ fn main() {
         )
         .insert_resource(Msaa::Off)
         .add_plugins(HanabiPlugin)
-        .init_state::<GameState>()
         .add_plugins(world::WorldPlugin)
         .add_plugins(player::PlayerPlugin)
         .add_plugins(enemy::EnemyPlugin)

@@ -1,7 +1,13 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
-use iyes_perf_ui::{PerfUiCompleteBundle, PerfUiPlugin};
+use iyes_perf_ui::{
+    diagnostics::{PerfUiEntryFPS, PerfUiEntryFPSWorst},
+    window::PerfUiEntryWindowResolution,
+    PerfUiPlugin, PerfUiRoot,
+};
+mod game_timer;
 mod health;
+mod main_menu;
 mod spells;
 use bevy::{diagnostic::FrameTimeDiagnosticsPlugin, input::common_conditions::input_toggle_active};
 
@@ -15,10 +21,21 @@ impl Plugin for UiPlugin {
             )
             .add_plugins(spells::SpellsUiPlugin)
             .add_plugins(health::HealthUiPlugin)
+            .add_plugins(main_menu::MainMenuPlugin)
+            .add_plugins(game_timer::GameTimer)
             .add_systems(Startup, spawn_perfui);
     }
 }
 
 fn spawn_perfui(mut commands: Commands) {
-    commands.spawn(PerfUiCompleteBundle::default());
+    //commands.spawn(PerfUiCompleteBundle::default());
+    commands.spawn((
+        PerfUiRoot {
+            position: iyes_perf_ui::PerfUiPosition::BottomRight,
+            ..default()
+        },
+        PerfUiEntryFPS::default(),
+        PerfUiEntryFPSWorst::default(),
+        PerfUiEntryWindowResolution::default(),
+    ));
 }

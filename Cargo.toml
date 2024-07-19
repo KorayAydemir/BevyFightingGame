@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 bevy = { version = "0.13.1", features = ["dynamic_linking"] }
 bevy-inspector-egui = "0.24.0"
+bevy_color = "0.14.1"
 # Use unstable version for Bevy 0.13 support
 bevy_ecs_ldtk = { git = "https://github.com/Trouv/bevy_ecs_ldtk.git" }
 bevy_hanabi = { version = "0.11", default-features = true }
