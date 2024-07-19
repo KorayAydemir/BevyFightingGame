@@ -5,7 +5,7 @@ use iyes_perf_ui::{
     window::PerfUiEntryWindowResolution,
     PerfUiPlugin, PerfUiRoot,
 };
-mod game_timer;
+pub mod game_timer;
 mod health;
 mod main_menu;
 mod spells;

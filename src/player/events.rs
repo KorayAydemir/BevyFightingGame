@@ -30,6 +30,9 @@ fn handle_events(
                     game_state.set(GameState::GameOver);
                 }
             }
+            PlayerEvents::KilledSlime(points) => {
+                player_health.health += *points as f32 / 2.;
+            }
         }
     }
 }

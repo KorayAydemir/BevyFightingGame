@@ -25,10 +25,11 @@ impl Plugin for SlimePlugin {
 #[derive(Component)]
 pub struct Slime {
     id: usize,
+    points: usize,
 }
 
 impl Slime {
-    pub fn new(id: usize) -> Slime {
-        Slime { id }
+    pub fn new(id: usize, points: usize) -> Slime {
+        Slime { id, points }
     }
 }

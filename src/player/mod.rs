@@ -50,6 +50,7 @@ pub struct Health {
 #[derive(Event)]
 pub enum PlayerEvents {
     GotHit(GotHitInfo),
+    KilledSlime(usize)
 }
 
 pub struct GotHitInfo {

@@ -115,7 +115,7 @@ fn spawn_slimes(
                     },
                     ..default()
                 },
-                Slime::new(i),
+                Slime::new(i, slime_scale.x.round() as usize),
                 SlimeState::Patrolling,
                 Enemy { damage: 0.5 },
                 AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),

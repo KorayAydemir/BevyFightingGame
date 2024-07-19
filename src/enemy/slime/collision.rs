@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::{player::{spells::PlayerMeleeHitbox, Player}};
+use crate::player::{spells::PlayerMeleeHitbox, Player, PlayerEvents};
 
 use super::Slime;
 
@@ -57,6 +57,8 @@ fn player_melee_hitbox_collisions(
     q_melee_hitbox: Query<Entity, With<PlayerMeleeHitbox>>,
     mut ev_collision_events: EventReader<CollisionEvent>,
     q_collider_parents: Query<&Parent, (With<Collider>, Without<Player>)>,
+    q_slime: Query<&Slime>,
+    mut ev_player_events: EventWriter<PlayerEvents>,
     mut commands: Commands,
 ) {
     let Ok(melee_hitbox) = q_melee_hitbox.get_single() else {
@@ -81,6 +83,9 @@ fn player_melee_hitbox_collisions(
         } else {
             continue;
         };
+
+        let slime_points = q_slime.get(**enemy_parent).unwrap().points;
+        ev_player_events.send(PlayerEvents::KilledSlime(slime_points));
 
         commands.entity(**enemy_parent).despawn_recursive();
     }

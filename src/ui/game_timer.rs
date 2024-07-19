@@ -1,21 +1,30 @@
 use bevy::{prelude::*, time::Stopwatch};
 
+use crate::world::game::GameState;
+
 pub struct GameTimer;
 impl Plugin for GameTimer {
     fn build(&self, app: &mut App) {
         app.insert_resource(GameDuration(Stopwatch::new()))
-            .add_systems(Update, update_game_timer)
+            .add_systems(
+                Update,
+                update_game_timer.run_if(in_state(GameState::Playing)),
+            )
             .add_systems(Startup, spawn_game_timer);
     }
 }
 
 #[derive(Resource)]
-struct GameDuration(Stopwatch);
+pub struct GameDuration(pub Stopwatch);
 
 #[derive(Component)]
 struct GameDurationText;
 
-fn update_game_timer(time: Res<Time>, mut game_duration: ResMut<GameDuration>, mut query: Query<(&GameDurationText, &mut Text)>) {
+fn update_game_timer(
+    time: Res<Time>,
+    mut game_duration: ResMut<GameDuration>,
+    mut query: Query<(&GameDurationText, &mut Text)>,
+) {
     game_duration.0.tick(time.delta());
 
     for (_, mut text) in &mut query {
