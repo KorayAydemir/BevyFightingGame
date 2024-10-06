@@ -1,10 +1,14 @@
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use iyes_perf_ui::ui::root::PerfUiRoot;
 use iyes_perf_ui::{
-    diagnostics::{PerfUiEntryFPS, PerfUiEntryFPSWorst},
-    window::PerfUiEntryWindowResolution,
-    PerfUiPlugin, PerfUiRoot,
+    entries::{
+        diagnostics::{PerfUiEntryFPS, PerfUiEntryFPSWorst},
+        window::PerfUiEntryWindowResolution,
+    },
+    PerfUiPlugin,
 };
+
 pub mod game_timer;
 mod health;
 mod main_menu;

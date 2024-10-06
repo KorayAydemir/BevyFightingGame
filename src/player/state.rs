@@ -97,9 +97,13 @@ fn log_player_state_transitions(
     mut ev_changed_state: EventReader<StateTransitionEvent<PlayerState>>,
 ) {
     for event in ev_changed_state.read() {
-        println!(
+        debug!(
             "Player state changed: {:?} -> {:?}",
-            event.before, event.after
-        );
+            event.exited, event.entered
+        )
+        //println!(
+        //    "Player state changed: {:?} -> {:?}",
+        //    event.before, event.after
+        //);
     }
 }

@@ -20,7 +20,7 @@ fn log_game_state_transitions(mut ev_changed_state: EventReader<StateTransitionE
     for event in ev_changed_state.read() {
         println!(
             "Game state changed: {:?} -> {:?}",
-            event.before, event.after
+            event.exited, event.entered
         );
     }
 }

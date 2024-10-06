@@ -6,6 +6,11 @@
     clippy::needless_pass_by_value
 )]
 
+use bevy::log::{
+    //tracing_subscriber::{fmt, layer::SubscriberExt},
+    LogPlugin, tracing_subscriber, tracing_subscriber::layer::SubscriberExt
+};
+
 use std::env;
 
 use crate::world::game::GameState;
@@ -26,6 +31,8 @@ mod world;
 fn main() {
     env::set_var("RUST_BACKTRACE", "1");
 
+
+
     App::new()
         .add_plugins(
             DefaultPlugins
@@ -37,6 +44,10 @@ fn main() {
                         resolution: WindowResolution::new(1280., 720.),
                         ..default()
                     }),
+                    ..default()
+                })
+                .set(LogPlugin {
+                    level: bevy::log::Level::DEBUG,
                     ..default()
                 }),
         )

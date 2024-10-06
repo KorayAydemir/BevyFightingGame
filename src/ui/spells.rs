@@ -45,10 +45,10 @@ fn spawn_cooldown_box_for_spell(
                         left: Val::Px(210. + (i * 30.)),
                         ..default()
                     },
-                    background_color: Color::rgb(0., 255., 0.).into(),
+                    background_color: Color::srgb(0., 255., 0.).into(),
                     ..default()
                 },
-                Outline::new(Val::Px(5.), Val::ZERO, Color::GREEN),
+                Outline::new(Val::Px(5.), Val::ZERO, Color::Srgba(bevy::color::palettes::css::GREEN)),
             ))
             .with_children(|parent| {
                 // kisalik amaciyla bu satirlar gizlendi.
@@ -61,7 +61,7 @@ fn spawn_cooldown_box_for_spell(
                             bottom: Val::Px(0.),
                             ..default()
                         },
-                        background_color: Color::rgba(0., 0., 0., 0.9).into(),
+                        background_color: Color::srgba(0., 0., 0., 0.9).into(),
                         z_index: ZIndex::Global(20),
                         ..default()
                     },

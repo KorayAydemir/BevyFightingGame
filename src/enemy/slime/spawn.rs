@@ -82,7 +82,7 @@ fn spawn_slimes(
     mut slime_spawn_event: EventReader<SlimeSpawnEvent>,
     q_player: Query<&Transform, With<Player>>,
 ) {
-    let layout = TextureAtlasLayout::from_grid(Vec2::new(16., 24.), 4, 1, None, None);
+    let layout = TextureAtlasLayout::from_grid(UVec2::new(16, 24), 4, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
 
     let mut slime_amount = 0;

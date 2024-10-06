@@ -6,15 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { version = "0.13.1", features = ["dynamic_linking"] }
-bevy-inspector-egui = "0.24.0"
-bevy_color = "0.14.1"
-# Use unstable version for Bevy 0.13 support
-bevy_ecs_ldtk = { git = "https://github.com/Trouv/bevy_ecs_ldtk.git" }
-bevy_hanabi = { version = "0.11", default-features = true }
-bevy_math = "0.13.2"
-bevy_rapier2d = "0.26.0"
-iyes_perf_ui = "0.2.3"
+bevy = { version = "0.14.2", features = ["dynamic_linking"] }
+bevy-inspector-egui = "0.26"
+bevy_color = "0.14.3"
+bevy_ecs_ldtk = "0.10"
+bevy_hanabi = { version = "0.12", default-features = true }
+bevy_math = "0.14.2"
+bevy_rapier2d = "0.27.0"
+iyes_perf_ui = "0.3"
 rand = "0.8.5"
 
 [patch.crates-io]

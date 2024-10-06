@@ -4,8 +4,10 @@ use crate::common::sprite::{update_spritesheet_indices, AnimationTimer};
 
 use self::state::KoalaState;
 
-mod state;
 mod sprite;
+mod state;
+
+const KOALA_SCALE: f32 = 1.5;
 
 pub struct NeutralKoalaPlugin;
 impl Plugin for NeutralKoalaPlugin {
@@ -32,14 +34,15 @@ fn spawn_koala(
     asset_server: Res<AssetServer>,
     mut res_texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
-    let texture_atlas = TextureAtlasLayout::from_grid(Vec2::new(32., 32.), 2, 12, None, None);
+    let texture_atlas = TextureAtlasLayout::from_grid(UVec2::new(32, 32), 12, 4, None, None);
     let texture_atlas_handle = res_texture_atlas_layouts.add(texture_atlas);
 
     commands.spawn((
         Koala,
         AnimationTimer(Timer::from_seconds(0.2, TimerMode::Repeating)),
         SpriteSheetBundle {
-            transform: Transform::from_translation(Vec3::new(50., 50., 0.)),
+            transform: Transform::from_translation(Vec3::new(50., 50., 0.))
+                .with_scale(Vec3::splat(KOALA_SCALE)),
             atlas: TextureAtlas {
                 layout: texture_atlas_handle,
                 index: 0,
@@ -53,7 +56,7 @@ fn spawn_koala(
 fn animate_koala(
     time: Res<Time>,
     mut q_koala: Query<(&mut AnimationTimer, &mut TextureAtlas), With<Koala>>,
-    res_koala_state: Res<State<KoalaState>>
+    res_koala_state: Res<State<KoalaState>>,
 ) {
     let (animation_timer, atlas) = q_koala.get_single_mut().unwrap();
     let koala_state = res_koala_state.get();

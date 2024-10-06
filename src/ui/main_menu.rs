@@ -167,7 +167,7 @@ fn main_menu_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
                         align_items: AlignItems::Center,
                         ..default()
                     },
-                    background_color: BackgroundColor(Color::CRIMSON),
+                    background_color: BackgroundColor(Color::srgb(CRIMSON.red, CRIMSON.green, CRIMSON.blue)),
                     ..default()
                 })
                 .with_children(|parent| {

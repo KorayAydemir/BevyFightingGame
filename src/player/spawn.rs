@@ -21,7 +21,7 @@ pub fn spawn_player(
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
 ) {
     let atlas_layout =
-        TextureAtlasLayout::from_grid(Vec2::new(128., 128.), 8, 3, Some(Vec2::new(16., 0.)), None);
+        TextureAtlasLayout::from_grid(UVec2::new(128, 128), 8, 3, Some(UVec2::new(16, 0)), None);
     let atlas_layout_handle = texture_atlas_layouts.add(atlas_layout);
 
     let player = commands
