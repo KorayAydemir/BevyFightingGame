@@ -5,10 +5,7 @@ use super::state::PlayerState;
 use super::{Player, PlayerSet};
 use crate::common::movement::{Horizontal, Vertical};
 
-fn set_velocity_to_zero(mut q_player: Query<&mut Velocity, With<Player>>) {
-    let mut player_velocity = q_player.single_mut();
-    player_velocity.linvel = Vec2::ZERO;
-}
+const BASE_SPEED: f32 = 200.;
 
 pub struct PlayerMovementPlugin;
 impl Plugin for PlayerMovementPlugin {
@@ -18,7 +15,10 @@ impl Plugin for PlayerMovementPlugin {
     }
 }
 
-const BASE_SPEED: f32 = 200.;
+fn set_velocity_to_zero(mut q_player: Query<&mut Velocity, With<Player>>) {
+    let mut player_velocity = q_player.single_mut();
+    player_velocity.linvel = Vec2::ZERO;
+}
 
 fn player_movement(
     mut q_player_transform: Query<&mut Transform, With<Player>>,

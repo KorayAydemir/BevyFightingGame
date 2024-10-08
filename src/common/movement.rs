@@ -1,4 +1,5 @@
 #[derive(Hash, Eq, PartialEq, Debug, Clone, Copy)]
+// Direction is not an enum because an entity can move in 2 axes at once
 pub struct Direction {
     pub vertical: Option<Vertical>,
     pub horizontal: Option<Horizontal>,
